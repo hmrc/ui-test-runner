@@ -4,6 +4,14 @@ A helper library for UI testing at HMRC.
 
 ## Development
 
+### Tests
+
+Run tests as follows:
+
+```bash
+sbt clean test
+```
+
 ### Scalafmt
 
 Check all project files are formatted as expected as follows:
