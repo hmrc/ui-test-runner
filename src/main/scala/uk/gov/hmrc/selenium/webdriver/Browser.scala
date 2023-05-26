@@ -19,8 +19,9 @@ package uk.gov.hmrc.selenium.webdriver
 import org.openqa.selenium.MutableCapabilities
 
 import java.time.Duration
+import scala.util.Try
 
-trait Browser {
+trait Browser extends FileDownload {
 
   protected def startBrowser(capabilities: Option[MutableCapabilities] = None): Unit = {
     Driver.instance = new DriverFactory().initialise(capabilities)
@@ -29,7 +30,13 @@ trait Browser {
   }
 
   protected def quitBrowser(): Unit =
-    if (Driver.instance != null)
+    if (Driver.instance != null) {
+      val filename          = "accessibility-assessment"
+      val downloadDirectory = s"./target/test-reports/$filename"
+      val sessionId         = Driver.instance.getSessionId
+
+      Try(download(filename, downloadDirectory, sessionId))
       Driver.instance.quit()
+    }
 
 }
