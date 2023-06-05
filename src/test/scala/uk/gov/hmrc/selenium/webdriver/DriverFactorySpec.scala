@@ -22,6 +22,8 @@ import org.openqa.selenium.firefox.FirefoxOptions
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.io.Source
+
 class DriverFactorySpec extends AnyWordSpec with Matchers {
 
   trait Setup {
@@ -31,13 +33,15 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
   "DriverFactory" should {
 
     "return default Chrome options" in new Setup {
-      val options: ChromeOptions = driverFactory.chromeOptions(None)
+      val options: ChromeOptions   = driverFactory.chromeOptions(None)
+      val encodedExtension: String =
+        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName") shouldBe "chrome"
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                        shouldBe "{args=[--remote-allow-origins=*], extensions=[]}"
+        .toString                        shouldBe s"{args=[--remote-allow-origins=*], extensions=[$encodedExtension]}"
     }
 
     "return merged Chrome options" in new Setup {
@@ -46,24 +50,27 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       capabilities.setAcceptInsecureCerts(true)
       capabilities.addArguments("--headless=new")
 
-      val options: ChromeOptions = driverFactory.chromeOptions(Some(capabilities))
+      val options: ChromeOptions   = driverFactory.chromeOptions(Some(capabilities))
+      val encodedExtension: String =
+        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
 
       options.asMap().get("acceptInsecureCerts") shouldBe true
       options.asMap().get("browserName")         shouldBe "chrome"
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe "{args=[--remote-allow-origins=*, --headless=new], extensions=[]}"
+        .toString                                shouldBe s"{args=[--remote-allow-origins=*, --headless=new], extensions=[$encodedExtension]}"
     }
 
     "return default Edge options" in new Setup {
-      val options: EdgeOptions = driverFactory.edgeOptions(None)
+      val options: EdgeOptions     = driverFactory.edgeOptions(None)
+      val encodedExtension: String = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName") shouldBe "MicrosoftEdge"
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                        shouldBe "{args=[--remote-allow-origins=*], extensions=[]}"
+        .toString                        shouldBe s"{args=[--remote-allow-origins=*], extensions=[$encodedExtension]}"
     }
 
     "return merged Edge options" in new Setup {
@@ -72,14 +79,15 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       capabilities.setAcceptInsecureCerts(true)
       capabilities.addArguments("--headless=new")
 
-      val options: EdgeOptions = driverFactory.edgeOptions(Some(capabilities))
+      val options: EdgeOptions     = driverFactory.edgeOptions(Some(capabilities))
+      val encodedExtension: String = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("acceptInsecureCerts") shouldBe true
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe "{args=[--remote-allow-origins=*, --headless=new], extensions=[]}"
+        .toString                                shouldBe s"{args=[--remote-allow-origins=*, --headless=new], extensions=[$encodedExtension]}"
     }
 
     "return default Firefox options" in new Setup {

@@ -24,6 +24,7 @@ import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 
 import java.net.URL
+import scala.io.Source
 
 class DriverFactory extends LazyLogging {
 
@@ -41,6 +42,10 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def chromeOptions(capabilities: Option[MutableCapabilities]): ChromeOptions = {
     var options: ChromeOptions = new ChromeOptions
+    val encodedExtension       = Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
+
+    options.addEncodedExtensions(encodedExtension)
+    options.setCapability("se:downloadsEnabled", true)
 
     capabilities match {
       case Some(value) =>
@@ -53,6 +58,10 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def edgeOptions(capabilities: Option[MutableCapabilities]): EdgeOptions = {
     var options: EdgeOptions = new EdgeOptions
+    val encodedExtension     = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
+
+    options.addEncodedExtensions(encodedExtension)
+    options.setCapability("se:downloadsEnabled", true)
 
     capabilities match {
       case Some(value) =>
