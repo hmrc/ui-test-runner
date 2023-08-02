@@ -42,9 +42,7 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def chromeOptions(capabilities: Option[MutableCapabilities]): ChromeOptions = {
     var options: ChromeOptions = new ChromeOptions
-    val encodedExtension       = Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
-
-    options.addEncodedExtensions(encodedExtension)
+    options.addEncodedExtensions(accessibilityAssessmentExtension("chrome"))
     options.setCapability("se:downloadsEnabled", true)
 
     capabilities match {
@@ -58,9 +56,7 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def edgeOptions(capabilities: Option[MutableCapabilities]): EdgeOptions = {
     var options: EdgeOptions = new EdgeOptions
-    val encodedExtension     = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
-
-    options.addEncodedExtensions(encodedExtension)
+    options.addEncodedExtensions(accessibilityAssessmentExtension("edge"))
     options.setCapability("se:downloadsEnabled", true)
 
     capabilities match {
@@ -91,6 +87,9 @@ class DriverFactory extends LazyLogging {
     logger.info(s"Browser: ${driver.getCapabilities.getBrowserName} ${driver.getCapabilities.getBrowserVersion}")
     driver
   }
+
+  private def accessibilityAssessmentExtension(browser: String): String =
+    Source.fromResource(s"extensions/$browser/accessibility-assessment").getLines().mkString
 
 }
 
