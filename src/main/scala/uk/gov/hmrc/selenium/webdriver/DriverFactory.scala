@@ -56,6 +56,7 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
+    options.setCapability("se:downloadsEnabled", true)
     options
   }
 
