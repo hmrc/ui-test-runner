@@ -45,6 +45,18 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
+    "return Chrome options when security assessment is enabled" in new Setup {
+      System.setProperty("security.assessment", "true")
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      options.asMap().get("browserName")         shouldBe "chrome"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+
+      System.clearProperty("security.assessment")
+    }
+
     "return default Edge options" in new Setup {
       val options: EdgeOptions     = driverFactory.edgeOptions()
       val encodedExtension: String = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
