@@ -43,16 +43,16 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
-    options.addEncodedExtensions(accessibilityAssessmentExtension(options.getBrowserName))
     options.setCapability("se:downloadsEnabled", true)
+    accessibilityAssessment(options)
     securityAssessment(options)
     options
   }
 
   private[webdriver] def edgeOptions(): EdgeOptions = {
     val options: EdgeOptions = new EdgeOptions
-    options.addEncodedExtensions(accessibilityAssessmentExtension(options.getBrowserName))
     options.setCapability("se:downloadsEnabled", true)
+    accessibilityAssessment(options)
     securityAssessment(options)
     options
   }
@@ -72,11 +72,23 @@ class DriverFactory extends LazyLogging {
     driver
   }
 
-  private def accessibilityAssessmentExtension(browser: String): String =
-    Source.fromResource(s"extensions/$browser/accessibility-assessment").getLines().mkString
+  private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
+    val enabled   = sys.props.getOrElse("accessibility.assessment", "true").toBoolean
+    val browser   = capabilities.getBrowserName
+    val extension = Source.fromResource(s"extensions/$browser/accessibility-assessment").getLines().mkString
+
+    if (enabled) {
+      browser match {
+        case "chrome"        => capabilities.asInstanceOf[ChromeOptions].addEncodedExtensions(extension)
+        case "MicrosoftEdge" => capabilities.asInstanceOf[EdgeOptions].addEncodedExtensions(extension)
+      }
+    }
+
+    capabilities
+  }
 
   private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
-    val enabled: Boolean = sys.props.getOrElse("security.assessment", "false").toBoolean
+    val enabled = sys.props.getOrElse("security.assessment", "false").toBoolean
 
     if (enabled) {
       val proxy = new Proxy()
