@@ -43,7 +43,7 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
-    options.addEncodedExtensions(accessibilityAssessmentExtension("chrome"))
+    options.addEncodedExtensions(accessibilityAssessmentExtension(options.getBrowserName))
     options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options
@@ -51,7 +51,7 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def edgeOptions(): EdgeOptions = {
     val options: EdgeOptions = new EdgeOptions
-    options.addEncodedExtensions(accessibilityAssessmentExtension("edge"))
+    options.addEncodedExtensions(accessibilityAssessmentExtension(options.getBrowserName))
     options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options

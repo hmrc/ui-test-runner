@@ -59,7 +59,8 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
 
     "return default Edge options" in new Setup {
       val options: EdgeOptions     = driverFactory.edgeOptions()
-      val encodedExtension: String = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
+      val encodedExtension: String =
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options
@@ -69,12 +70,36 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
+    "return Edge options when security assessment is enabled" in new Setup {
+      System.setProperty("security.assessment", "true")
+
+      val options: EdgeOptions = driverFactory.edgeOptions()
+
+      options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+
+      System.clearProperty("security.assessment")
+    }
+
     "return default Firefox options" in new Setup {
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
       options.asMap().get("browserName")                 shouldBe "firefox"
       options.asMap().get("moz:firefoxOptions").toString shouldBe "{}"
       options.asMap().get("se:downloadsEnabled")         shouldBe true
+    }
+
+    "return Firefox options when security assessment is enabled" in new Setup {
+      System.setProperty("security.assessment", "true")
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      options.asMap().get("browserName")         shouldBe "firefox"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+
+      System.clearProperty("security.assessment")
     }
 
   }
