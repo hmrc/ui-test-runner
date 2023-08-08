@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
-import org.openqa.selenium.MutableCapabilities
-
 import java.time.Duration
 import scala.util.Try
 
 trait Browser extends FileDownload {
 
-  protected def startBrowser(capabilities: Option[MutableCapabilities] = None): Unit = {
-    Driver.instance = new DriverFactory().initialise(capabilities)
+  protected def startBrowser(): Unit = {
+    Driver.instance = new DriverFactory().initialise()
     Driver.instance.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(3))
     Driver.instance.manage().window().maximize()
   }

@@ -37,18 +37,6 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       Driver.instance.getCapabilities.getBrowserName shouldBe "chrome"
     }
 
-    "start Chrome browser with custom options" in {
-      System.setProperty("browser", "chrome")
-
-      val capabilities = new ChromeOptions
-      capabilities.setAcceptInsecureCerts(true)
-      startBrowser(Some(capabilities))
-
-      Driver.instance.getSessionId                                      shouldNot be(null)
-      Driver.instance.getCapabilities.getBrowserName                     shouldBe "chrome"
-      Driver.instance.getCapabilities.asMap().get("acceptInsecureCerts") shouldBe true
-    }
-
     "quit Chrome browser" in {
       System.setProperty("browser", "chrome")
 

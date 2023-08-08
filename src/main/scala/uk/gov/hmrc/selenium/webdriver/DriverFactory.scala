@@ -28,56 +28,35 @@ import scala.io.Source
 
 class DriverFactory extends LazyLogging {
 
-  def initialise(capabilities: Option[MutableCapabilities] = None): RemoteWebDriver = {
+  def initialise(): RemoteWebDriver = {
     val browser = sys.props.get("browser").map(_.toLowerCase)
 
     browser match {
-      case Some("chrome")  => remoteWebDriver(chromeOptions(capabilities))
-      case Some("edge")    => remoteWebDriver(edgeOptions(capabilities))
-      case Some("firefox") => remoteWebDriver(firefoxOptions(capabilities))
+      case Some("chrome")  => remoteWebDriver(chromeOptions())
+      case Some("edge")    => remoteWebDriver(edgeOptions())
+      case Some("firefox") => remoteWebDriver(firefoxOptions())
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
   }
 
-  private[webdriver] def chromeOptions(capabilities: Option[MutableCapabilities]): ChromeOptions = {
-    var options: ChromeOptions = new ChromeOptions
+  private[webdriver] def chromeOptions(): ChromeOptions = {
+    val options: ChromeOptions = new ChromeOptions
     options.addEncodedExtensions(accessibilityAssessmentExtension("chrome"))
     options.setCapability("se:downloadsEnabled", true)
-
-    capabilities match {
-      case Some(value) =>
-        options = options.merge(value)
-        options
-      case None        =>
-        options
-    }
+    options
   }
 
-  private[webdriver] def edgeOptions(capabilities: Option[MutableCapabilities]): EdgeOptions = {
-    var options: EdgeOptions = new EdgeOptions
+  private[webdriver] def edgeOptions(): EdgeOptions = {
+    val options: EdgeOptions = new EdgeOptions
     options.addEncodedExtensions(accessibilityAssessmentExtension("edge"))
     options.setCapability("se:downloadsEnabled", true)
-
-    capabilities match {
-      case Some(value) =>
-        options = options.merge(value)
-        options
-      case None        =>
-        options
-    }
+    options
   }
 
-  private[webdriver] def firefoxOptions(capabilities: Option[MutableCapabilities]): FirefoxOptions = {
-    var options: FirefoxOptions = new FirefoxOptions
-
-    capabilities match {
-      case Some(value) =>
-        options = options.merge(value)
-        options
-      case None        =>
-        options
-    }
+  private[webdriver] def firefoxOptions(): FirefoxOptions = {
+    val options: FirefoxOptions = new FirefoxOptions
+    options
   }
 
   private def remoteWebDriver(capabilities: MutableCapabilities): RemoteWebDriver = {
