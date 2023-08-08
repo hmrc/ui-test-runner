@@ -59,7 +59,8 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
 
     "return default Edge options" in new Setup {
       val options: EdgeOptions     = driverFactory.edgeOptions()
-      val encodedExtension: String = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
+      val encodedExtension: String =
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options
