@@ -37,22 +37,24 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       val encodedExtension: String =
         Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
 
-      options.asMap().get("browserName") shouldBe "chrome"
+      options.asMap().get("browserName")         shouldBe "chrome"
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                        shouldBe s"{args=[--remote-allow-origins=*], extensions=[$encodedExtension]}"
+        .toString                                shouldBe s"{args=[--remote-allow-origins=*], extensions=[$encodedExtension]}"
+      options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
     "return default Edge options" in new Setup {
       val options: EdgeOptions     = driverFactory.edgeOptions()
       val encodedExtension: String = Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
 
-      options.asMap().get("browserName") shouldBe "MicrosoftEdge"
+      options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                        shouldBe s"{args=[--remote-allow-origins=*], extensions=[$encodedExtension]}"
+        .toString                                shouldBe s"{args=[--remote-allow-origins=*], extensions=[$encodedExtension]}"
+      options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
     "return default Firefox options" in new Setup {
@@ -60,6 +62,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
 
       options.asMap().get("browserName")                 shouldBe "firefox"
       options.asMap().get("moz:firefoxOptions").toString shouldBe "{}"
+      options.asMap().get("se:downloadsEnabled")         shouldBe true
     }
 
   }
