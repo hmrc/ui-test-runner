@@ -18,7 +18,6 @@ package uk.gov.hmrc.selenium.webdriver
 
 import com.typesafe.scalalogging.LazyLogging
 import org.openqa.selenium.MutableCapabilities
-import org.openqa.selenium.Proxy
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.edge.EdgeOptions
 import org.openqa.selenium.firefox.FirefoxOptions
@@ -45,7 +44,6 @@ class DriverFactory extends LazyLogging {
     val options: ChromeOptions = new ChromeOptions
     options.setCapability("se:downloadsEnabled", true)
     accessibilityAssessment(options)
-    securityAssessment(options)
     options
   }
 
@@ -53,14 +51,12 @@ class DriverFactory extends LazyLogging {
     val options: EdgeOptions = new EdgeOptions
     options.setCapability("se:downloadsEnabled", true)
     accessibilityAssessment(options)
-    securityAssessment(options)
     options
   }
 
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
     options.setCapability("se:downloadsEnabled", true)
-    securityAssessment(options)
     options
   }
 
@@ -82,21 +78,6 @@ class DriverFactory extends LazyLogging {
         case "chrome"        => capabilities.asInstanceOf[ChromeOptions].addEncodedExtensions(extension)
         case "MicrosoftEdge" => capabilities.asInstanceOf[EdgeOptions].addEncodedExtensions(extension)
       }
-    }
-
-    capabilities
-  }
-
-  private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
-    val enabled = sys.props.getOrElse("security.assessment", "false").toBoolean
-
-    if (enabled) {
-      val proxy = new Proxy()
-      proxy.setHttpProxy("localhost:11000")
-      proxy.setSslProxy("localhost:11000")
-
-      capabilities.setCapability("acceptInsecureCerts", true)
-      capabilities.setCapability("proxy", proxy)
     }
 
     capabilities
