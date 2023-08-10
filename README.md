@@ -2,6 +2,75 @@
 
 A helper library for UI testing at HMRC.
 
+## Usage
+
+### Declare dependency
+
+Declare the library as a project dependency as follows:
+
+```scala
+"uk.gov.hmrc" %% "ui-test-runner" % "x.x.x" % Test
+```
+
+See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/project/Dependencies.scala).
+
+### Configuration
+
+- System property `browser` must be set in order to execute tests. Browsers `chrome`, `edge` and `firefox` are available.
+- System property `environment` must be set in order to execute tests. Environments `local`, `dev`, `qa` and `staging` are typically available, but will depend on your project configuration. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
+
+Set `browser` and `envrionment` system properties when executing tests as follows:
+
+```sbt
+sbt -Dbrowser="<browser>" -Denvironment="<environment>" "testOnly uk.gov.hmrc.ui.specs.*"
+```
+
+See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/run-tests.sh).
+
+### Browser
+
+#### Start
+
+Start a new browser session as follows:
+
+```scala
+startBrowser()
+```
+
+See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
+
+#### Stop
+
+Stop an existing browser session as follows:
+
+```scala
+quitBrowser()
+```
+
+See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
+
+#### Driver instance
+
+Starting a new browser session returns an instance of RemoteWebDriver as an object. Use as follows:
+
+```scala
+Driver.instance.<command>
+```
+
+See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/BasePage.scala).
+
+### Test environment configuration
+
+Test environment configuration is available. A configuration file is required to use it. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
+
+Create a url from a configuration file as follows:
+
+```scala
+val url: String = TestEnvironment.url("service") + "/path"
+```
+
+See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/VATReturnPeriod.scala).
+
 ## Development
 
 ### Tests
