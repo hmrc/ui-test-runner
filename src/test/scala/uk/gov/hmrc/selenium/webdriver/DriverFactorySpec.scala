@@ -16,15 +16,20 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import org.mockito.scalatest.MockitoSugar
+import org.openqa.selenium.MutableCapabilities
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.edge.EdgeOptions
 import org.openqa.selenium.firefox.FirefoxOptions
+import org.openqa.selenium.remote.RemoteWebDriver
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.slf4j.LoggerFactory
+import uk.gov.hmrc.util.LogCapturing
 
 import scala.io.Source
 
-class DriverFactorySpec extends AnyWordSpec with Matchers {
+class DriverFactorySpec extends AnyWordSpec with Matchers with MockitoSugar with LogCapturing {
 
   trait Setup {
     val driverFactory: DriverFactory = new DriverFactory
@@ -66,6 +71,22 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("se:downloadsEnabled")         shouldBe true
     }
 
+    "return log message that accessibility assessment not available when using Firefox" in {
+      withCaptureOfLoggingFrom(LoggerFactory.getLogger("uk.gov.hmrc.selenium.webdriver.DriverFactory")) { logEvents =>
+        System.setProperty("browser", "firefox")
+
+        val remoteWebDriver              = mock[RemoteWebDriver]
+        val driverFactory: DriverFactory = spy(new DriverFactory, lenient = true)
+        doReturn(remoteWebDriver).when(driverFactory).remoteWebDriver(any[MutableCapabilities])
+
+        driverFactory.initialise()
+
+        logEvents                                should not be empty
+        logEvents.headOption.map(_.getMessage) shouldBe Some(
+          "Accessibility assessment: Not available for Firefox"
+        )
+      }
+    }
   }
 
 }

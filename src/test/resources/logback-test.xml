@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--  mute some logging for tests-->
+    <logger name="uk.gov.hmrc.selenium.webdriver.DriverFactory" level="WARN"/>
+    <logger name="ch.qos.logback.classic.LoggerContext" level="OFF"/>
+    <logger name="org.openqa.selenium" level="OFF"/>
+
+</configuration>

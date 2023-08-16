@@ -4,5 +4,5 @@ lazy val library = (project in file("."))
     name := "ui-test-runner",
     version := "0.4.0",
     scalaVersion := "2.13.8",
-    libraryDependencies ++= Dependencies.compile
+    libraryDependencies ++= Dependencies.compile ++ Dependencies.test
   )

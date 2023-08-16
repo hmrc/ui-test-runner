@@ -34,7 +34,9 @@ class DriverFactory extends LazyLogging {
     browser match {
       case Some("chrome")  => remoteWebDriver(chromeOptions())
       case Some("edge")    => remoteWebDriver(edgeOptions())
-      case Some("firefox") => remoteWebDriver(firefoxOptions())
+      case Some("firefox") =>
+        logger.warn("Accessibility assessment: Not available for Firefox")
+        remoteWebDriver(firefoxOptions())
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
@@ -66,7 +68,7 @@ class DriverFactory extends LazyLogging {
     options
   }
 
-  private def remoteWebDriver(capabilities: MutableCapabilities): RemoteWebDriver = {
+  private[webdriver] def remoteWebDriver(capabilities: MutableCapabilities): RemoteWebDriver = {
     val remoteAddress: String   = "http://localhost:4444"
     val driver: RemoteWebDriver = new RemoteWebDriver(new URL(remoteAddress), capabilities)
 
