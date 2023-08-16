@@ -69,8 +69,10 @@ class DriverFactory extends LazyLogging {
   private def remoteWebDriver(capabilities: MutableCapabilities): RemoteWebDriver = {
     val remoteAddress: String   = "http://localhost:4444"
     val driver: RemoteWebDriver = new RemoteWebDriver(new URL(remoteAddress), capabilities)
+    val browserName = driver.getCapabilities.getBrowserName
 
-    logger.info(s"Browser: ${driver.getCapabilities.getBrowserName} ${driver.getCapabilities.getBrowserVersion}")
+    logger.info(s"Browser: ${browserName} ${driver.getCapabilities.getBrowserVersion}")
+    if (browserName== "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
     driver
   }
 
