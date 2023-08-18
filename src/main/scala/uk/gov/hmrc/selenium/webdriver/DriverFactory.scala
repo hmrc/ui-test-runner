@@ -18,6 +18,7 @@ package uk.gov.hmrc.selenium.webdriver
 
 import com.typesafe.scalalogging.LazyLogging
 import org.openqa.selenium.MutableCapabilities
+import org.openqa.selenium.Proxy
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.edge.EdgeOptions
 import org.openqa.selenium.firefox.FirefoxOptions
@@ -47,6 +48,7 @@ class DriverFactory extends LazyLogging {
 
     options.addEncodedExtensions(accessibilityAssessmentExtension)
     options.setCapability("se:downloadsEnabled", true)
+    securityAssessment(options)
     options
   }
 
@@ -57,12 +59,15 @@ class DriverFactory extends LazyLogging {
 
     options.addEncodedExtensions(accessibilityAssessmentExtension)
     options.setCapability("se:downloadsEnabled", true)
+    securityAssessment(options)
     options
   }
 
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
+
     options.setCapability("se:downloadsEnabled", true)
+    securityAssessment(options)
     options
   }
 
@@ -74,6 +79,30 @@ class DriverFactory extends LazyLogging {
     logger.info(s"Browser: $browserName ${driver.getCapabilities.getBrowserVersion}")
     if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
     driver
+  }
+
+  private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
+    val enabled = sys.props.getOrElse("security.assessment", "false").toBoolean
+    val browser = capabilities.getBrowserName
+    val proxy   = new Proxy()
+
+    if (enabled) {
+      proxy.setHttpProxy("localhost:11000")
+      proxy.setSslProxy("localhost:11000")
+
+      browser match {
+        case "chrome"        => proxy.setNoProxy("<-loopback>")
+        case "MicrosoftEdge" => proxy.setNoProxy("<-loopback>")
+        case "firefox"       =>
+          capabilities.asInstanceOf[FirefoxOptions].addPreference("network.proxy.allow_hijacking_localhost", true)
+      }
+
+      capabilities.setCapability("acceptInsecureCerts", true)
+      capabilities.setCapability("proxy", proxy)
+      logger.info(s"Security assessment: Running on localhost:11000")
+    }
+
+    capabilities
   }
 
 }
