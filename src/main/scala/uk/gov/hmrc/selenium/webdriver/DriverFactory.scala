@@ -78,6 +78,7 @@ class DriverFactory extends LazyLogging {
 
     logger.info(s"Browser: $browserName ${driver.getCapabilities.getBrowserVersion}")
     if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
+    else logger.info("Accessibility assessment: Running")
     driver
   }
 
