@@ -69,7 +69,6 @@ with ScreenshotOnFailure
 
 See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
 
-
 ### Test environment configuration
 
 Test environment configuration is available. A configuration file is required to use it. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
