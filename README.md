@@ -60,6 +60,16 @@ Driver.instance.<command>
 
 See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/BasePage.scala).
 
+### Screenshot on failure
+
+Enable screenshot on failure with `ScreenshotOnFailure` trait as follows:
+
+```scala
+with ScreenshotOnFailure
+```
+
+See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
+
 ### Test environment configuration
 
 Test environment configuration is available. A configuration file is required to use it. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
@@ -105,3 +115,4 @@ sbt scalafmtAll
 ## License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
+    
