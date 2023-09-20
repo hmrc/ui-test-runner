@@ -61,6 +61,7 @@ Driver.instance.<command>
 See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/BasePage.scala).
 
 ### Screenshot on failure
+
 Enable screenshot on failure with `ScreenshotOnFailure` trait as follows:
 
 ```scala
