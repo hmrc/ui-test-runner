@@ -57,7 +57,8 @@ trait PageObject {
 
   protected def sendKeys(locator: By, keys: Keys*): Unit = {
     clear(locator)
-    keys.foreach(key => findElement(locator).sendKeys(key))
+    val element = findElement(locator)
+    keys.foreach(key => element.sendKeys(key))
   }
 
   protected def selectCheckbox(locator: By): Unit =
