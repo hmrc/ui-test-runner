@@ -84,7 +84,7 @@ class DriverFactory extends LazyLogging {
 
   private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
     val enabledLocal = sys.props.getOrElse("security.assessment", "false").toBoolean
-    val enabledBuild = sys.env.getOrElse("security.assessment", "false").toBoolean
+    val enabledBuild = sys.env.getOrElse("SECURITY_ASSESSMENT", "false").toBoolean
     val browser      = capabilities.getBrowserName
     val proxy        = new Proxy()
 
