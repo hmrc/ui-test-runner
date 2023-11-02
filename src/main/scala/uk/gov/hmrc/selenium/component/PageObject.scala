@@ -69,29 +69,23 @@ trait PageObject {
     if (isSelected(locator))
       click(locator)
 
-  protected def selectByValue(locator: By, value: String): Unit = {
+  private def withSelect(locator: By)(action: Select => Unit): Unit = {
     waitForElementToBePresent(locator)
-    val select: Select = new Select(findElement(locator))
-    select.selectByValue(value)
+    val select = new Select(findElement(locator))
+    action(select)
   }
 
-  protected def deselectByValue(locator: By, value: String): Unit = {
-    waitForElementToBePresent(locator)
-    val select: Select = new Select(findElement(locator))
-    select.deselectByValue(value)
-  }
+  protected def selectByValue(locator: By, value: String): Unit =
+    withSelect(locator)(_.selectByValue(value))
 
-  protected def selectByVisibleText(locator: By, value: String): Unit = {
-    waitForElementToBePresent(locator)
-    val select: Select = new Select(findElement(locator))
-    select.selectByVisibleText(value)
-  }
+  protected def deselectByValue(locator: By, value: String): Unit =
+    withSelect(locator)(_.deselectByValue(value))
 
-  protected def deselectByVisibleText(locator: By, value: String): Unit = {
-    waitForElementToBePresent(locator)
-    val select: Select = new Select(findElement(locator))
-    select.deselectByVisibleText(value)
-  }
+  protected def selectByVisibleText(locator: By, value: String): Unit =
+    withSelect(locator)(_.selectByVisibleText(value))
+
+  protected def deselectByVisibleText(locator: By, value: String): Unit =
+    withSelect(locator)(_.deselectByVisibleText(value))
 
   private def clear(locator: By): Unit = {
     waitForElementToBePresent(locator)
