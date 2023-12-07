@@ -46,7 +46,7 @@ class DriverFactory extends LazyLogging {
     val accessibilityAssessmentExtension =
       Source.fromResource(s"extensions/chrome/accessibility-assessment").getLines().mkString
 
-    options.addEncodedExtensions(accessibilityAssessmentExtension)
+    // options.addEncodedExtensions(accessibilityAssessmentExtension)
     options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options
@@ -57,7 +57,7 @@ class DriverFactory extends LazyLogging {
     val accessibilityAssessmentExtension =
       Source.fromResource(s"extensions/edge/accessibility-assessment").getLines().mkString
 
-    options.addEncodedExtensions(accessibilityAssessmentExtension)
+    // options.addEncodedExtensions(accessibilityAssessmentExtension)
     options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options
