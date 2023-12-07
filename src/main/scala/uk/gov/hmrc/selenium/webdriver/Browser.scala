@@ -23,7 +23,6 @@ trait Browser extends FileDownload {
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
-    Driver.instance.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15))
     Driver.instance.manage().window().maximize()
   }
 
