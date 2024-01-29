@@ -41,7 +41,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--remote-allow-origins=*], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
       options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
@@ -66,7 +66,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[--remote-allow-origins=*], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
       options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
