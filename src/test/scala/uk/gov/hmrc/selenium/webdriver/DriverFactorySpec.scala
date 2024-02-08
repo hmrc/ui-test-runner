@@ -38,6 +38,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "chrome"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
       options
         .asMap()
         .get("goog:chromeOptions")
@@ -63,6 +64,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
       options
         .asMap()
         .get("ms:edgeOptions")
@@ -86,6 +88,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
       options.asMap().get("browserName")                 shouldBe "firefox"
+      options.asMap().get("acceptInsecureCerts")         shouldBe true
       options.asMap().get("moz:firefoxOptions").toString shouldBe "{}"
       options.asMap().get("se:downloadsEnabled")         shouldBe true
     }
