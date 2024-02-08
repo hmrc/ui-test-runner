@@ -47,6 +47,7 @@ class DriverFactory extends LazyLogging {
       Source.fromResource(s"extensions/chrome/accessibility-assessment").getLines().mkString
 
     options.addEncodedExtensions(accessibilityAssessmentExtension)
+    options.setAcceptInsecureCerts(true)
     options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options
@@ -58,6 +59,7 @@ class DriverFactory extends LazyLogging {
       Source.fromResource(s"extensions/edge/accessibility-assessment").getLines().mkString
 
     options.addEncodedExtensions(accessibilityAssessmentExtension)
+    options.setAcceptInsecureCerts(true)
     options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options
@@ -66,6 +68,7 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
 
+    options.setAcceptInsecureCerts(true)
     options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options
@@ -99,7 +102,6 @@ class DriverFactory extends LazyLogging {
           capabilities.asInstanceOf[FirefoxOptions].addPreference("network.proxy.allow_hijacking_localhost", true)
       }
 
-      capabilities.setCapability("acceptInsecureCerts", true)
       capabilities.setCapability("proxy", proxy)
       logger.info(s"Security assessment: Running on localhost:11000")
     }
