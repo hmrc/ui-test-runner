@@ -43,24 +43,18 @@ class DriverFactory extends LazyLogging {
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions           = new ChromeOptions
-    val accessibilityAssessmentExtension =
-      Source.fromResource(s"extensions/chrome/accessibility-assessment").getLines().mkString
 
-    options.addEncodedExtensions(accessibilityAssessmentExtension)
     options.setAcceptInsecureCerts(true)
-    options.setCapability("se:downloadsEnabled", true)
+    accessibilityAssessment(options)
     securityAssessment(options)
     options
   }
 
   private[webdriver] def edgeOptions(): EdgeOptions = {
     val options: EdgeOptions             = new EdgeOptions
-    val accessibilityAssessmentExtension =
-      Source.fromResource(s"extensions/edge/accessibility-assessment").getLines().mkString
 
-    options.addEncodedExtensions(accessibilityAssessmentExtension)
     options.setAcceptInsecureCerts(true)
-    options.setCapability("se:downloadsEnabled", true)
+    accessibilityAssessment(options)
     securityAssessment(options)
     options
   }
@@ -69,7 +63,6 @@ class DriverFactory extends LazyLogging {
     val options: FirefoxOptions = new FirefoxOptions
 
     options.setAcceptInsecureCerts(true)
-    options.setCapability("se:downloadsEnabled", true)
     securityAssessment(options)
     options
   }
@@ -83,6 +76,28 @@ class DriverFactory extends LazyLogging {
     if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
     else logger.info("Accessibility assessment: Running")
     driver
+  }
+
+  private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
+    val enabledLocal = sys.props.getOrElse("accessibility.assessment", "true").toBoolean
+    val enabledBuild = sys.env.getOrElse("ACCESSIBILITY_ASSESSMENT", "false").toBoolean
+    val browser = capabilities.getBrowserName
+
+    val accessibilityAssessmentExtension =
+      Source.fromResource(s"extensions/$browser/accessibility-assessment").getLines().mkString
+
+    if (enabledLocal || enabledBuild) {
+      browser match {
+        case "chrome" =>
+          capabilities.asInstanceOf[ChromeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
+          capabilities.asInstanceOf[ChromeOptions].setCapability("se:downloadsEnabled", true)
+        case "MicrosoftEdge" =>
+          capabilities.asInstanceOf[EdgeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
+          capabilities.asInstanceOf[EdgeOptions].setCapability("se:downloadsEnabled", true)
+      }
+    }
+
+    capabilities
   }
 
   private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
