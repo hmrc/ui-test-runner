@@ -51,16 +51,15 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
-      options.asMap().get("browserName") shouldBe "chrome"
+      options.asMap().get("browserName")         shouldBe "chrome"
       options.asMap().get("acceptInsecureCerts") shouldBe true
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString shouldBe s"{args=[], extensions=[]}"
+        .toString                                shouldBe s"{args=[], extensions=[]}"
       options.asMap().get("se:downloadsEnabled") shouldBe null
 
       System.clearProperty("accessibility.assessment")
-
     }
 
     "return Chrome options when security assessment is enabled" in new Setup {

@@ -42,7 +42,7 @@ class DriverFactory extends LazyLogging {
   }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
-    val options: ChromeOptions           = new ChromeOptions
+    val options: ChromeOptions = new ChromeOptions
 
     options.setAcceptInsecureCerts(true)
     accessibilityAssessment(options)
@@ -51,7 +51,7 @@ class DriverFactory extends LazyLogging {
   }
 
   private[webdriver] def edgeOptions(): EdgeOptions = {
-    val options: EdgeOptions             = new EdgeOptions
+    val options: EdgeOptions = new EdgeOptions
 
     options.setAcceptInsecureCerts(true)
     accessibilityAssessment(options)
@@ -81,14 +81,14 @@ class DriverFactory extends LazyLogging {
   private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
     val enabledLocal = sys.props.getOrElse("accessibility.assessment", "true").toBoolean
     val enabledBuild = sys.env.getOrElse("ACCESSIBILITY_ASSESSMENT", "false").toBoolean
-    val browser = capabilities.getBrowserName
+    val browser      = capabilities.getBrowserName
 
     val accessibilityAssessmentExtension =
       Source.fromResource(s"extensions/$browser/accessibility-assessment").getLines().mkString
 
     if (enabledLocal || enabledBuild) {
       browser match {
-        case "chrome" =>
+        case "chrome"        =>
           capabilities.asInstanceOf[ChromeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
           capabilities.asInstanceOf[ChromeOptions].setCapability("se:downloadsEnabled", true)
         case "MicrosoftEdge" =>
