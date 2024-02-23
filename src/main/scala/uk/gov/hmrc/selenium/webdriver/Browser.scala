@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
-import java.time.Duration
 import scala.util.Try
 
 trait Browser extends FileDownload {
