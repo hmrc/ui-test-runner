@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
-import scala.util.Try
-
-trait Browser extends FileDownload {
+trait Browser {
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
@@ -27,11 +25,6 @@ trait Browser extends FileDownload {
 
   protected def quitBrowser(): Unit =
     if (Driver.instance != null) {
-      val filename          = "accessibility-assessment"
-      val downloadDirectory = s"./target/test-reports/$filename/axe-results"
-      val sessionId         = Driver.instance.getSessionId
-
-      Try(download(filename, downloadDirectory, sessionId))
       Driver.instance.quit()
     }
 

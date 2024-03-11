@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
-import org.openqa.selenium.remote.RemoteWebDriver
+import org.openqa.selenium.WebDriver
 
 object Driver {
 
-  implicit var instance: RemoteWebDriver = _
+  implicit var instance: WebDriver = _
 
 }

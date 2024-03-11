@@ -43,25 +43,47 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         .asMap()
         .get("goog:chromeOptions")
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
     "return Chrome options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: ChromeOptions = driverFactory.chromeOptions()
+      val options: ChromeOptions                   = driverFactory.chromeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "chrome"
       options.asMap().get("acceptInsecureCerts") shouldBe true
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+      options
+        .asMap()
+        .get("goog:chromeOptions")
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
 
       System.clearProperty("security.assessment")
+    }
+
+    "return Chrome options when headless is enabled" in new Setup {
+      System.setProperty("browser.headless", "true")
+
+      val options: ChromeOptions                   = driverFactory.chromeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
+
+      options.asMap().get("browserName")         shouldBe "chrome"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("goog:chromeOptions")
+        .toString                                shouldBe s"{args=[--headless=new], extensions=[$accessibilityAssessmentExtension]}"
+
+      System.clearProperty("browser.headless")
     }
 
     "return default Edge options" in new Setup {
       val options: EdgeOptions                     = driverFactory.edgeOptions()
       val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -69,19 +91,41 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         .asMap()
         .get("ms:edgeOptions")
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
     "return Edge options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: EdgeOptions = driverFactory.edgeOptions()
+      val options: EdgeOptions                     = driverFactory.edgeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+      options
+        .asMap()
+        .get("ms:edgeOptions")
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
 
       System.clearProperty("security.assessment")
+    }
+
+    "return Edge options when headless is enabled" in new Setup {
+      System.setProperty("browser.headless", "true")
+
+      val options: EdgeOptions                     = driverFactory.edgeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
+
+      options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("ms:edgeOptions")
+        .toString                                shouldBe s"{args=[--headless=new], extensions=[$accessibilityAssessmentExtension]}"
+
+      System.clearProperty("browser.headless")
     }
 
     "return default Firefox options" in new Setup {
@@ -90,7 +134,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("browserName")                 shouldBe "firefox"
       options.asMap().get("acceptInsecureCerts")         shouldBe true
       options.asMap().get("moz:firefoxOptions").toString shouldBe "{}"
-      options.asMap().get("se:downloadsEnabled")         shouldBe true
     }
 
     "return Firefox options when security assessment is enabled" in new Setup {
@@ -107,6 +150,18 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
 
       System.clearProperty("security.assessment")
+    }
+
+    "return Firefox options when headless is enabled" in new Setup {
+      System.setProperty("browser.headless", "true")
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      options.asMap().get("browserName")                 shouldBe "firefox"
+      options.asMap().get("acceptInsecureCerts")         shouldBe true
+      options.asMap().get("moz:firefoxOptions").toString shouldBe "{args=[-headless]}"
+
+      System.clearProperty("browser.headless")
     }
 
   }
