@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.util.Try
 
-trait Browser extends FileDownload {
+trait Browser extends FileDownload with LazyLogging {
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
@@ -31,8 +33,9 @@ trait Browser extends FileDownload {
       val downloadDirectory = s"./target/test-reports/$filename/axe-results"
       val sessionId         = Driver.instance.getSessionId
 
-      Try(download(filename, downloadDirectory, sessionId))
+      Try(download(filename, downloadDirectory, sessionId)).failed
+        .foreach(logger.error("Accessibility assessment: Failed to download results", _))
+
       Driver.instance.quit()
     }
-
 }
