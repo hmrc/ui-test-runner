@@ -46,6 +46,22 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
+    "return Chrome options when accessibility assessment is disabled" in new Setup {
+      System.setProperty("accessibility.assessment", "false")
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      options.asMap().get("browserName")         shouldBe "chrome"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("goog:chromeOptions")
+        .toString                                shouldBe s"{args=[], extensions=[]}"
+      options.asMap().get("se:downloadsEnabled") shouldBe null
+
+      System.clearProperty("accessibility.assessment")
+    }
+
     "return Chrome options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
@@ -61,7 +77,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
     "return default Edge options" in new Setup {
       val options: EdgeOptions                     = driverFactory.edgeOptions()
       val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/edge/accessibility-assessment").getLines().mkString
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -70,6 +86,22 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         .get("ms:edgeOptions")
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
       options.asMap().get("se:downloadsEnabled") shouldBe true
+    }
+
+    "return Edge options when accessibility assessment is disabled" in new Setup {
+      System.setProperty("accessibility.assessment", "false")
+
+      val options: EdgeOptions = driverFactory.edgeOptions()
+
+      options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("ms:edgeOptions")
+        .toString                                shouldBe s"{args=[], extensions=[]}"
+      options.asMap().get("se:downloadsEnabled") shouldBe null
+
+      System.clearProperty("accessibility.assessment")
     }
 
     "return Edge options when security assessment is enabled" in new Setup {
@@ -90,7 +122,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("browserName")                 shouldBe "firefox"
       options.asMap().get("acceptInsecureCerts")         shouldBe true
       options.asMap().get("moz:firefoxOptions").toString shouldBe "{}"
-      options.asMap().get("se:downloadsEnabled")         shouldBe true
     }
 
     "return Firefox options when security assessment is enabled" in new Setup {
