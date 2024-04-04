@@ -70,11 +70,9 @@ class DriverFactory extends LazyLogging {
   private def remoteWebDriver(capabilities: MutableCapabilities): RemoteWebDriver = {
     val remoteAddress: String   = "http://localhost:4444"
     val driver: RemoteWebDriver = new RemoteWebDriver(new URL(remoteAddress), capabilities)
-    val browserName             = driver.getCapabilities.getBrowserName
+    val browser                 = driver.getCapabilities.getBrowserName
 
-    logger.info(s"Browser: $browserName ${driver.getCapabilities.getBrowserVersion}")
-    if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
-    else logger.info("Accessibility assessment: Running")
+    logger.info(s"Browser: $browser ${driver.getCapabilities.getBrowserVersion}")
     driver
   }
 
@@ -95,6 +93,9 @@ class DriverFactory extends LazyLogging {
           capabilities.asInstanceOf[EdgeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
           capabilities.asInstanceOf[EdgeOptions].setCapability("se:downloadsEnabled", true)
       }
+
+      if (browser == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
+      else logger.info("Accessibility assessment: Running")
     }
 
     capabilities

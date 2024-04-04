@@ -88,6 +88,22 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
+    "return Edge options when accessibility assessment is disabled" in new Setup {
+      System.setProperty("accessibility.assessment", "false")
+
+      val options: EdgeOptions = driverFactory.edgeOptions()
+
+      options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("ms:edgeOptions")
+        .toString                                shouldBe s"{args=[], extensions=[]}"
+      options.asMap().get("se:downloadsEnabled") shouldBe null
+
+      System.clearProperty("accessibility.assessment")
+    }
+
     "return Edge options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
