@@ -17,25 +17,22 @@
 package uk.gov.hmrc.selenium.webdriver
 
 import com.typesafe.scalalogging.LazyLogging
-import org.openqa.selenium.MutableCapabilities
-import org.openqa.selenium.Proxy
-import org.openqa.selenium.chrome.ChromeOptions
-import org.openqa.selenium.edge.EdgeOptions
-import org.openqa.selenium.firefox.FirefoxOptions
-import org.openqa.selenium.remote.RemoteWebDriver
+import org.openqa.selenium.{MutableCapabilities, Proxy, WebDriver}
+import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
+import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
+import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 
-import java.net.URL
 import scala.io.Source
 
 class DriverFactory extends LazyLogging {
 
-  def initialise(): RemoteWebDriver = {
+  def initialise(): WebDriver = {
     val browser = sys.props.get("browser").map(_.toLowerCase)
 
     browser match {
-      case Some("chrome")  => remoteWebDriver(chromeOptions())
-      case Some("edge")    => remoteWebDriver(edgeOptions())
-      case Some("firefox") => remoteWebDriver(firefoxOptions())
+      case Some("chrome")  => new ChromeDriver(chromeOptions())
+      case Some("edge")    => new EdgeDriver(edgeOptions())
+      case Some("firefox") => new FirefoxDriver(firefoxOptions())
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
@@ -44,6 +41,7 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
 
+    options.setBrowserVersion("122")
     options.setAcceptInsecureCerts(true)
     accessibilityAssessment(options)
     securityAssessment(options)
@@ -53,6 +51,7 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def edgeOptions(): EdgeOptions = {
     val options: EdgeOptions = new EdgeOptions
 
+    options.setBrowserVersion("122")
     options.setAcceptInsecureCerts(true)
     accessibilityAssessment(options)
     securityAssessment(options)
@@ -62,18 +61,10 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
 
+    options.setBrowserVersion("123")
     options.setAcceptInsecureCerts(true)
     securityAssessment(options)
     options
-  }
-
-  private def remoteWebDriver(capabilities: MutableCapabilities): RemoteWebDriver = {
-    val remoteAddress: String   = "http://localhost:4444"
-    val driver: RemoteWebDriver = new RemoteWebDriver(new URL(remoteAddress), capabilities)
-    val browser                 = driver.getCapabilities.getBrowserName
-
-    logger.info(s"Browser: $browser ${driver.getCapabilities.getBrowserVersion}")
-    driver
   }
 
   private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
