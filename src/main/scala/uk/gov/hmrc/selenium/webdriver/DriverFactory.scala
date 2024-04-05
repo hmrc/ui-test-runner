@@ -88,10 +88,8 @@ class DriverFactory extends LazyLogging {
       browser match {
         case "chrome"        =>
           capabilities.asInstanceOf[ChromeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
-          capabilities.asInstanceOf[ChromeOptions].setCapability("se:downloadsEnabled", true)
         case "MicrosoftEdge" =>
           capabilities.asInstanceOf[EdgeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
-          capabilities.asInstanceOf[EdgeOptions].setCapability("se:downloadsEnabled", true)
       }
 
       if (browser == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")

@@ -43,7 +43,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         .asMap()
         .get("goog:chromeOptions")
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
     "return Chrome options when accessibility assessment is disabled" in new Setup {
@@ -57,7 +56,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         .asMap()
         .get("goog:chromeOptions")
         .toString                                shouldBe s"{args=[], extensions=[]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe null
 
       System.clearProperty("accessibility.assessment")
     }
@@ -85,7 +83,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         .asMap()
         .get("ms:edgeOptions")
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe true
     }
 
     "return Edge options when accessibility assessment is disabled" in new Setup {
@@ -99,7 +96,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
         .asMap()
         .get("ms:edgeOptions")
         .toString                                shouldBe s"{args=[], extensions=[]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe null
 
       System.clearProperty("accessibility.assessment")
     }
