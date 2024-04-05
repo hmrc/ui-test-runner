@@ -29,6 +29,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
   trait Setup {
     val driverFactory: DriverFactory = new DriverFactory
+    val downloadDirectory = s"${System.getProperty("user.dir")}/target/downloads"
   }
 
   override def afterEach(): Unit = {
@@ -49,7 +50,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when accessibility assessment is disabled" in new Setup {
@@ -62,7 +63,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[]}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when security assessment is enabled" in new Setup {
@@ -78,7 +79,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when browser option headless is disabled" in new Setup {
@@ -93,7 +94,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return default Edge options" in new Setup {
@@ -106,7 +107,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when accessibility assessment is disabled" in new Setup {
@@ -119,7 +120,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[]}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when security assessment is enabled" in new Setup {
@@ -136,7 +137,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when browser option headless is disabled" in new Setup {
@@ -151,7 +152,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return default Firefox options" in new Setup {
@@ -159,7 +160,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
       options.asMap().get("browserName")                 shouldBe "firefox"
       options.asMap().get("acceptInsecureCerts")         shouldBe true
-      options.asMap().get("moz:firefoxOptions").toString shouldBe "{args=[-headless]}"
+      options.asMap().get("moz:firefoxOptions").toString shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
     }
 
     "return Firefox options when security assessment is enabled" in new Setup {
@@ -172,7 +173,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("moz:firefoxOptions")
-        .toString                                shouldBe "{args=[-headless], prefs={network.proxy.allow_hijacking_localhost=true}}"
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true}}"
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
     }
 
@@ -183,7 +184,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
       options.asMap().get("browserName")                 shouldBe "firefox"
       options.asMap().get("acceptInsecureCerts")         shouldBe true
-      options.asMap().get("moz:firefoxOptions").toString shouldBe "{}"
+      options.asMap().get("moz:firefoxOptions").toString shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
     }
 
   }

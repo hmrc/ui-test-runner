@@ -23,6 +23,7 @@ import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 
 import scala.io.Source
+import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
 
@@ -43,6 +44,7 @@ class DriverFactory extends LazyLogging {
 
     accessibilityAssessment(options)
     securityAssessment(options)
+    downloadDirectory(options)
     headless(options)
 
     options.setBrowserVersion("122")
@@ -56,6 +58,7 @@ class DriverFactory extends LazyLogging {
 
     accessibilityAssessment(options)
     securityAssessment(options)
+    downloadDirectory(options)
     headless(options)
 
     options.setBrowserVersion("122")
@@ -68,6 +71,7 @@ class DriverFactory extends LazyLogging {
     val options: FirefoxOptions = new FirefoxOptions
 
     securityAssessment(options)
+    downloadDirectory(options)
     headless(options)
 
     options.setBrowserVersion("123")
@@ -136,6 +140,23 @@ class DriverFactory extends LazyLogging {
       }
 
       logger.info("Browser option (headless): Enabled")
+    }
+
+    capabilities
+  }
+
+  private def downloadDirectory(capabilities: MutableCapabilities): MutableCapabilities = {
+    val browserName  = capabilities.getBrowserName
+
+    val downloadDirectory = s"${System.getProperty("user.dir")}/target/downloads"
+    val preferences = Map("download.default_directory" -> downloadDirectory).asJava
+
+    browserName match {
+      case "chrome" => capabilities.asInstanceOf[ChromeOptions].setExperimentalOption("prefs", preferences)
+      case "MicrosoftEdge" => capabilities.asInstanceOf[EdgeOptions].setExperimentalOption("prefs", preferences)
+      case "firefox" =>
+        capabilities.asInstanceOf[FirefoxOptions].addPreference("browser.download.folderList", 2)
+        capabilities.asInstanceOf[FirefoxOptions].addPreference("browser.download.dir", downloadDirectory)
     }
 
     capabilities
