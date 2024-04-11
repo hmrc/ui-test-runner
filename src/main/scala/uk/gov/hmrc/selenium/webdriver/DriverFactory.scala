@@ -134,9 +134,15 @@ class DriverFactory extends LazyLogging {
 
     if (enabledLocal || enabledBuild) {
       browserName match {
-        case "chrome" => capabilities.asInstanceOf[ChromeOptions].addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox")
-        case "MicrosoftEdge" => capabilities.asInstanceOf[EdgeOptions].addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox")
-        case "firefox" => capabilities.asInstanceOf[FirefoxOptions].addArguments("-headless")
+        case "chrome"        =>
+          capabilities
+            .asInstanceOf[ChromeOptions]
+            .addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox")
+        case "MicrosoftEdge" =>
+          capabilities
+            .asInstanceOf[EdgeOptions]
+            .addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox")
+        case "firefox"       => capabilities.asInstanceOf[FirefoxOptions].addArguments("-headless")
       }
 
       logger.info("Browser option (headless): Enabled")
@@ -146,15 +152,15 @@ class DriverFactory extends LazyLogging {
   }
 
   private def downloadDirectory(capabilities: MutableCapabilities): MutableCapabilities = {
-    val browserName  = capabilities.getBrowserName
+    val browserName = capabilities.getBrowserName
 
-    val downloadDirectory = s"${System.getProperty("user.dir")}/target/downloads"
-    val preferences = Map("download.default_directory" -> downloadDirectory).asJava
+    val downloadDirectory = s"${System.getProperty("user.dir")}/target/browser-downloads"
+    val preferences       = Map("download.default_directory" -> downloadDirectory).asJava
 
     browserName match {
-      case "chrome" => capabilities.asInstanceOf[ChromeOptions].setExperimentalOption("prefs", preferences)
+      case "chrome"        => capabilities.asInstanceOf[ChromeOptions].setExperimentalOption("prefs", preferences)
       case "MicrosoftEdge" => capabilities.asInstanceOf[EdgeOptions].setExperimentalOption("prefs", preferences)
-      case "firefox" =>
+      case "firefox"       =>
         capabilities.asInstanceOf[FirefoxOptions].addPreference("browser.download.folderList", 2)
         capabilities.asInstanceOf[FirefoxOptions].addPreference("browser.download.dir", downloadDirectory)
     }

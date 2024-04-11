@@ -29,7 +29,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
   trait Setup {
     val driverFactory: DriverFactory = new DriverFactory
-    val downloadDirectory = s"${System.getProperty("user.dir")}/target/downloads"
+    val downloadDirectory            = s"${System.getProperty("user.dir")}/target/browser-downloads"
   }
 
   override def afterEach(): Unit = {
@@ -69,7 +69,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return Chrome options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: ChromeOptions = driverFactory.chromeOptions()
+      val options: ChromeOptions                   = driverFactory.chromeOptions()
       val accessibilityAssessmentExtension: String =
         Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
 
@@ -126,10 +126,9 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return Edge options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: EdgeOptions = driverFactory.edgeOptions()
+      val options: EdgeOptions                     = driverFactory.edgeOptions()
       val accessibilityAssessmentExtension: String =
         Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
-
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -143,7 +142,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return Edge options when browser option headless is disabled" in new Setup {
       System.setProperty("browser.option.headless", "false")
 
-      val options: EdgeOptions = driverFactory.edgeOptions()
+      val options: EdgeOptions                     = driverFactory.edgeOptions()
       val accessibilityAssessmentExtension: String =
         Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
 
@@ -158,9 +157,12 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return default Firefox options" in new Setup {
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
-      options.asMap().get("browserName")                 shouldBe "firefox"
-      options.asMap().get("acceptInsecureCerts")         shouldBe true
-      options.asMap().get("moz:firefoxOptions").toString shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
+      options.asMap().get("browserName")         shouldBe "firefox"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("moz:firefoxOptions")
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
     }
 
     "return Firefox options when security assessment is enabled" in new Setup {
@@ -182,9 +184,12 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
-      options.asMap().get("browserName")                 shouldBe "firefox"
-      options.asMap().get("acceptInsecureCerts")         shouldBe true
-      options.asMap().get("moz:firefoxOptions").toString shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
+      options.asMap().get("browserName")         shouldBe "firefox"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("moz:firefoxOptions")
+        .toString                                shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
     }
 
   }
