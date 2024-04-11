@@ -64,7 +64,7 @@ See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/
 
 #### Download directory
 
-The default directory for file downloads is `target/downloads`.
+The default directory for file downloads is `target/browser-downloads`.
 
 ### Screenshot on failure
 
