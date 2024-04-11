@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import java.util.concurrent.TimeUnit
+
 trait Browser {
 
   protected def startBrowser(): Unit = {
@@ -23,8 +25,18 @@ trait Browser {
     Driver.instance.manage().window().maximize()
   }
 
+  /**
+   * TODO: Remove or refactor hard coded sleep (250ms) before browser quit function is called
+   *
+   * This is currently required to ensure that file downloads that are triggered by the accessibility assessment
+   * extension are not corrupted because the browser has quit before the file download is completed.
+   *
+   * @see https://www.selenium.dev/documentation/grid/configuration/cli_options/#complete-sample-code-in-java
+   */
   protected def quitBrowser(): Unit =
-    if (Driver.instance != null)
+    if (Driver.instance != null) {
+      TimeUnit.MILLISECONDS.sleep(250)
       Driver.instance.quit()
+    }
 
 }
