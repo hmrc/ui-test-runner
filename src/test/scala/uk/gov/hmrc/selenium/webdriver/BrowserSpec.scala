@@ -16,37 +16,60 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import org.openqa.selenium.chrome.ChromeDriver
+import org.openqa.selenium.edge.EdgeDriver
+import org.openqa.selenium.firefox.FirefoxDriver
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with Browser {
 
-  override def afterEach(): Unit =
+  override def afterEach(): Unit = {
     quitBrowser()
+
+    System.clearProperty("browser")
+  }
 
   "Browser" should {
 
-    "start Chrome browser with default options" in {
+    "start and quit Chrome browser with default options" in {
       System.setProperty("browser", "chrome")
 
       startBrowser()
 
-      Driver.instance.getSessionId                  shouldNot be(null)
-      Driver.instance.getCapabilities.getBrowserName shouldBe "chrome"
-    }
-
-    "quit Chrome browser" in {
-      System.setProperty("browser", "chrome")
-
-      startBrowser()
-
-      Driver.instance.getSessionId                  shouldNot be(null)
-      Driver.instance.getCapabilities.getBrowserName shouldBe "chrome"
+      Driver.instance.asInstanceOf[ChromeDriver].getSessionId                  shouldNot be(null)
+      Driver.instance.asInstanceOf[ChromeDriver].getCapabilities.getBrowserName shouldBe "chrome"
 
       quitBrowser()
 
-      Driver.instance.getSessionId shouldBe null
+      Driver.instance.asInstanceOf[ChromeDriver].getSessionId shouldBe null
+    }
+
+    "start and quit Edge browser with default options" in {
+      System.setProperty("browser", "edge")
+
+      startBrowser()
+
+      Driver.instance.asInstanceOf[EdgeDriver].getSessionId                  shouldNot be(null)
+      Driver.instance.asInstanceOf[EdgeDriver].getCapabilities.getBrowserName shouldBe "MicrosoftEdge"
+
+      quitBrowser()
+
+      Driver.instance.asInstanceOf[EdgeDriver].getSessionId shouldBe null
+    }
+
+    "start and quit Firefox browser with default options" in {
+      System.setProperty("browser", "firefox")
+
+      startBrowser()
+
+      Driver.instance.asInstanceOf[FirefoxDriver].getSessionId                  shouldNot be(null)
+      Driver.instance.asInstanceOf[FirefoxDriver].getCapabilities.getBrowserName shouldBe "firefox"
+
+      quitBrowser()
+
+      Driver.instance.asInstanceOf[FirefoxDriver].getSessionId shouldBe null
     }
 
     "throw an exception for unknown browser" in {

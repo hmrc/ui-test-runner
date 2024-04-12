@@ -19,15 +19,23 @@ package uk.gov.hmrc.selenium.webdriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.edge.EdgeOptions
 import org.openqa.selenium.firefox.FirefoxOptions
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import scala.io.Source
 
-class DriverFactorySpec extends AnyWordSpec with Matchers {
+class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
   trait Setup {
     val driverFactory: DriverFactory = new DriverFactory
+    val downloadDirectory            = s"${System.getProperty("user.dir")}/target/browser-downloads"
+  }
+
+  override def afterEach(): Unit = {
+    System.clearProperty("accessibility.assessment")
+    System.clearProperty("security.assessment")
+    System.clearProperty("browser.option.headless")
   }
 
   "DriverFactory" should {
@@ -42,8 +50,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe true
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when accessibility assessment is disabled" in new Setup {
@@ -56,22 +63,38 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[], extensions=[]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe null
-
-      System.clearProperty("accessibility.assessment")
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: ChromeOptions = driverFactory.chromeOptions()
+      val options: ChromeOptions                   = driverFactory.chromeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "chrome"
       options.asMap().get("acceptInsecureCerts") shouldBe true
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+      options
+        .asMap()
+        .get("goog:chromeOptions")
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+    }
 
-      System.clearProperty("security.assessment")
+    "return Chrome options when browser option headless is disabled" in new Setup {
+      System.setProperty("browser.option.headless", "false")
+
+      val options: ChromeOptions                   = driverFactory.chromeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
+
+      options.asMap().get("browserName")         shouldBe "chrome"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("goog:chromeOptions")
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return default Edge options" in new Setup {
@@ -84,8 +107,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe true
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when accessibility assessment is disabled" in new Setup {
@@ -98,30 +120,49 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[], extensions=[]}"
-      options.asMap().get("se:downloadsEnabled") shouldBe null
-
-      System.clearProperty("accessibility.assessment")
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: EdgeOptions = driverFactory.edgeOptions()
+      val options: EdgeOptions                     = driverFactory.edgeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+      options
+        .asMap()
+        .get("ms:edgeOptions")
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+    }
 
-      System.clearProperty("security.assessment")
+    "return Edge options when browser option headless is disabled" in new Setup {
+      System.setProperty("browser.option.headless", "false")
+
+      val options: EdgeOptions                     = driverFactory.edgeOptions()
+      val accessibilityAssessmentExtension: String =
+        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
+
+      options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("ms:edgeOptions")
+        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return default Firefox options" in new Setup {
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
-      options.asMap().get("browserName")                 shouldBe "firefox"
-      options.asMap().get("acceptInsecureCerts")         shouldBe true
-      options.asMap().get("moz:firefoxOptions").toString shouldBe "{}"
+      options.asMap().get("browserName")         shouldBe "firefox"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("moz:firefoxOptions")
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
     }
 
     "return Firefox options when security assessment is enabled" in new Setup {
@@ -134,10 +175,21 @@ class DriverFactorySpec extends AnyWordSpec with Matchers {
       options
         .asMap()
         .get("moz:firefoxOptions")
-        .toString                                shouldBe "{prefs={network.proxy.allow_hijacking_localhost=true}}"
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true}}"
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
+    }
 
-      System.clearProperty("security.assessment")
+    "return Firefox options when browser option headless is disabled" in new Setup {
+      System.setProperty("browser.option.headless", "false")
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      options.asMap().get("browserName")         shouldBe "firefox"
+      options.asMap().get("acceptInsecureCerts") shouldBe true
+      options
+        .asMap()
+        .get("moz:firefoxOptions")
+        .toString                                shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
     }
 
   }

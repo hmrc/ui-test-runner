@@ -16,26 +16,27 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
-import com.typesafe.scalalogging.LazyLogging
+import java.util.concurrent.TimeUnit
 
-import scala.util.Try
-
-trait Browser extends FileDownload with LazyLogging {
+trait Browser {
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
     Driver.instance.manage().window().maximize()
   }
 
+  /** TODO: Remove or refactor hard coded sleep (250ms) before browser quit function is called
+    *
+    * This is currently required to ensure that file downloads that are triggered by the accessibility assessment
+    * extension are not corrupted because the browser has quit before the file download is completed.
+    *
+    * @see
+    *   https://www.selenium.dev/documentation/grid/configuration/cli_options/#complete-sample-code-in-java
+    */
   protected def quitBrowser(): Unit =
     if (Driver.instance != null) {
-      val filename          = "accessibility-assessment"
-      val downloadDirectory = s"./target/test-reports/$filename/axe-results"
-      val sessionId         = Driver.instance.getSessionId
-
-      Try(download(filename, downloadDirectory, sessionId)).failed
-        .foreach(logger.error("Accessibility assessment: Failed to download results", _))
-
+      TimeUnit.MILLISECONDS.sleep(250)
       Driver.instance.quit()
     }
+
 }
