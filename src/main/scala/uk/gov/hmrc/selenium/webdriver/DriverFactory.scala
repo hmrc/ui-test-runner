@@ -42,6 +42,7 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
 
+    options.addArguments("--disable-features=MediaRouter")
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)

@@ -50,7 +50,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--disable-features=MediaRouter, --headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when accessibility assessment is disabled" in new Setup {
@@ -63,7 +63,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--disable-features=MediaRouter, --headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when security assessment is enabled" in new Setup {
@@ -79,7 +79,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--disable-features=MediaRouter, --headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when browser option headless is disabled" in new Setup {
@@ -94,7 +94,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return default Edge options" in new Setup {
