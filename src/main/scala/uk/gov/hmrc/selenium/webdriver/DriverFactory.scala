@@ -42,13 +42,15 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
 
-    options.addArguments("--disable-features=MediaRouter")
+    options.setBrowserVersion("122")
+    logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
+
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
 
-    options.setBrowserVersion("122")
+    options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
 
     options
@@ -57,12 +59,14 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def edgeOptions(): EdgeOptions = {
     val options: EdgeOptions = new EdgeOptions
 
+    options.setBrowserVersion("122")
+    logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
+
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
 
-    options.setBrowserVersion("122")
     options.setAcceptInsecureCerts(true)
 
     options
@@ -71,11 +75,13 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
 
+    options.setBrowserVersion("123")
+    logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
+
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
 
-    options.setBrowserVersion("123")
     options.setAcceptInsecureCerts(true)
 
     options
