@@ -10,5 +10,4 @@ object Dependencies {
     "org.scalatest"              %% "scalatest"       % "3.2.18",
     "org.seleniumhq.selenium"     % "selenium-java"   % "4.18.1"
   )
-
 }
