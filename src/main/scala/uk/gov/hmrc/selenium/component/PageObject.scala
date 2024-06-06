@@ -88,7 +88,7 @@ trait PageObject {
     withSelect(locator)(_.deselectByVisibleText(value))
 
   protected def waitForInvisibilityOfElementWithText(locator: By, value: String): Boolean =
-    fluentWait.until(ExpectedConditions.invisibilityOfElementWithText(locator, value))
+    fluentWait.until(ExpectedConditions.invisibilityOfElementWithText(locator, value).andThen(Boolean2boolean))
 
   private def clear(locator: By): Unit = {
     waitForElementToBePresent(locator)
