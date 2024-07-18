@@ -21,11 +21,17 @@ import org.openqa.selenium.{MutableCapabilities, Proxy, WebDriver}
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
 import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
+import uk.gov.hmrc.selenium.webdriver.ResourceExtractor.extractExtensionResourcesAndReturnPath
 
-import scala.io.Source
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
+  protected val extensionResourcePath      = "/accessibility-assessment-extension"
+  protected lazy val extractedResourcePath = extractExtensionResourcesAndReturnPath(extensionResourcePath)
+
+  private val edgeBrowserVersion    = 128
+  private val firefoxBrowserVersion = 123
+  private val chromeBrowserVersion  = 122
 
   def initialise(): WebDriver = {
     val browser = sys.props.get("browser").map(_.toLowerCase)
@@ -33,7 +39,9 @@ class DriverFactory extends LazyLogging {
     browser match {
       case Some("chrome")  => new ChromeDriver(chromeOptions())
       case Some("edge")    => new EdgeDriver(edgeOptions())
-      case Some("firefox") => new FirefoxDriver(firefoxOptions())
+      case Some("firefox") =>
+        logger.warn("Accessibility assessment: Not available for Firefox")
+        new FirefoxDriver(firefoxOptions())
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
@@ -42,10 +50,10 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
 
-    options.setBrowserVersion("122")
+    options.setBrowserVersion(chromeBrowserVersion.toString)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
-    accessibilityAssessment(options)
+    options.addArguments("--load-extension=" + extractedResourcePath)
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
@@ -59,10 +67,10 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def edgeOptions(): EdgeOptions = {
     val options: EdgeOptions = new EdgeOptions
 
-    options.setBrowserVersion("122")
+    options.setBrowserVersion(edgeBrowserVersion.toString)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
-    accessibilityAssessment(options)
+    options.addArguments("--load-extension=" + extractedResourcePath)
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
@@ -75,9 +83,11 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
 
-    options.setBrowserVersion("123")
+    options.setBrowserVersion(firefoxBrowserVersion.toString)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    // TODO: firefox is not yet supported, ticket to check firefox support https://jira.tools.tax.service.gov.uk/browse/PLATUI-3164
+    //    options.addArguments("--install-extension=" + extensionPath)
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
@@ -85,29 +95,6 @@ class DriverFactory extends LazyLogging {
     options.setAcceptInsecureCerts(true)
 
     options
-  }
-
-  private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
-    val enabledLocal = sys.props.getOrElse("accessibility.assessment", "true").toBoolean
-    val enabledBuild = sys.env.getOrElse("ACCESSIBILITY_ASSESSMENT", "false").toBoolean
-    val browserName  = capabilities.getBrowserName
-
-    val accessibilityAssessmentExtension =
-      Source.fromResource(s"extensions/$browserName/accessibility-assessment").getLines().mkString
-
-    if (enabledLocal || enabledBuild) {
-      browserName match {
-        case "chrome"        =>
-          capabilities.asInstanceOf[ChromeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
-        case "MicrosoftEdge" =>
-          capabilities.asInstanceOf[EdgeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
-      }
-
-      if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
-      else logger.info("Accessibility assessment: Enabled")
-    }
-
-    capabilities
   }
 
   private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {

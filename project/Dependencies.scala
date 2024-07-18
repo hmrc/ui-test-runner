@@ -1,6 +1,8 @@
 import sbt.*
 
 object Dependencies {
+  val hmrcArtifactReleases                    = "hmrc-releases"
+  val accessibilityAssessmentExtensionVersion = "1.0.0"
 
   val compile: Seq[ModuleID] = Seq(
     "ch.qos.logback"              % "logback-classic" % "1.5.4",
