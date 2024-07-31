@@ -27,7 +27,11 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
 
-  def initialise(): WebDriver = {
+  // Browser version to test in labs, not available for service teams
+  private val edgeBrowserVersion    = sys.env.getOrElse("BROWSER_VERSION", "125")
+  private val firefoxBrowserVersion = sys.env.getOrElse("BROWSER_VERSION", "122")
+  private val chromeBrowserVersion  = sys.env.getOrElse("BROWSER_VERSION", "122")
+  def initialise(): WebDriver       = {
     val browser = sys.props.get("browser").map(_.toLowerCase)
 
     browser match {
@@ -42,7 +46,7 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
 
-    options.setBrowserVersion("122")
+    options.setBrowserVersion(chromeBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
     accessibilityAssessment(options)
@@ -59,7 +63,7 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def edgeOptions(): EdgeOptions = {
     val options: EdgeOptions = new EdgeOptions
 
-    options.setBrowserVersion("122")
+    options.setBrowserVersion(edgeBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
     accessibilityAssessment(options)
@@ -75,7 +79,7 @@ class DriverFactory extends LazyLogging {
   private[webdriver] def firefoxOptions(): FirefoxOptions = {
     val options: FirefoxOptions = new FirefoxOptions
 
-    options.setBrowserVersion("123")
+    options.setBrowserVersion(firefoxBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
     securityAssessment(options)
