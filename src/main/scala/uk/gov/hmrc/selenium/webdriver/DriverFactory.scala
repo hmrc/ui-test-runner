@@ -97,7 +97,7 @@ class DriverFactory extends LazyLogging {
     val browserName  = capabilities.getBrowserName
 
     val accessibilityAssessmentExtension =
-      Source.fromResource(s"extensions/$browserName/accessibility-assessment").getLines().mkString
+      Source.fromResource(s"browser-extensions/chromium-accessibility-assessment").getLines().mkString
 
     if (enabledLocal || enabledBuild) {
       browserName match {

@@ -1,0 +1,54 @@
+{
+  "name": "accessibility-assessment",
+  "version": "1.4.0",
+  "description": "Automatic accessibility checks.",
+  "engines": {
+    "node": "^20",
+    "npm": "^10"
+  },
+  "targets": {
+    "default": {
+      "context": "browser"
+    }
+  },
+  "scripts": {
+    "test": "jest",
+    "prebuild": "rimraf .parcel-cache dist",
+    "update-version": "node update-manifest-version.js",
+    "version": "npm run update-version",
+    "build": "parcel build src/manifest.json",
+    "start": "parcel watch src/manifest.json --host localhost"
+  },
+  "contributors": [
+    {
+      "name": "Kyle Bowden",
+      "email": "kyle.bowden@digital.hmrc.gov.uk",
+      "url": "https://github.com/kyle-bowden"
+    },
+    {
+      "name": "Tom McArdle",
+      "email": "tom.mcardle@digital.hmrc.gov.uk",
+      "url": "https://github.com/tmc-ee"
+    },
+    {
+      "name": "Viv Richards",
+      "email": "viv.richards@digital.hmrc.gov.uk",
+      "url": "https://github.com/vivrichards600"
+    }
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@parcel/config-webextension": "^2.12.0",
+    "@types/chrome": "^0.0.263",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "parcel": "^2.12.0",
+    "process": "^0.11.10",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "axe-core": "^4.9.1"
+  }
+}

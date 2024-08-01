@@ -39,11 +39,11 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
   }
 
   "DriverFactory" should {
+    val accessibilityAssessmentExtension: String =
+      Source.fromResource("browser-extensions/chromium-accessibility-assessment").getLines().mkString
 
     "return default Chrome options" in new Setup {
-      val options: ChromeOptions                   = driverFactory.chromeOptions()
-      val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
+      val options: ChromeOptions = driverFactory.chromeOptions()
 
       options.asMap().get("browserName")         shouldBe "chrome"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -69,9 +69,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return Chrome options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: ChromeOptions                   = driverFactory.chromeOptions()
-      val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
+      val options: ChromeOptions = driverFactory.chromeOptions()
 
       options.asMap().get("browserName")         shouldBe "chrome"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -85,9 +83,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return Chrome options when browser option headless is disabled" in new Setup {
       System.setProperty("browser.option.headless", "false")
 
-      val options: ChromeOptions                   = driverFactory.chromeOptions()
-      val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/chrome/accessibility-assessment").getLines().mkString
+      val options: ChromeOptions = driverFactory.chromeOptions()
 
       options.asMap().get("browserName")         shouldBe "chrome"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -98,9 +94,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "return default Edge options" in new Setup {
-      val options: EdgeOptions                     = driverFactory.edgeOptions()
-      val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
+      val options: EdgeOptions = driverFactory.edgeOptions()
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -126,9 +120,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return Edge options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
 
-      val options: EdgeOptions                     = driverFactory.edgeOptions()
-      val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
+      val options: EdgeOptions = driverFactory.edgeOptions()
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
@@ -142,9 +134,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     "return Edge options when browser option headless is disabled" in new Setup {
       System.setProperty("browser.option.headless", "false")
 
-      val options: EdgeOptions                     = driverFactory.edgeOptions()
-      val accessibilityAssessmentExtension: String =
-        Source.fromResource("extensions/MicrosoftEdge/accessibility-assessment").getLines().mkString
+      val options: EdgeOptions = driverFactory.edgeOptions()
 
       options.asMap().get("browserName")         shouldBe "MicrosoftEdge"
       options.asMap().get("acceptInsecureCerts") shouldBe true
