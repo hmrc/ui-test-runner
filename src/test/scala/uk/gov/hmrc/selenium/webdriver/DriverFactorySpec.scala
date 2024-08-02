@@ -23,7 +23,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import scala.io.Source
+import java.util.Base64
 
 class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
@@ -39,8 +39,9 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
   }
 
   "DriverFactory" should {
-    val accessibilityAssessmentExtension: String =
-      Source.fromResource("browser-extensions/chromium-accessibility-assessment").getLines().mkString
+    val accessibilityAssessmentExtension: String = Base64.getEncoder.encodeToString(
+      getClass.getResourceAsStream("/browser-extensions/chromium-accessibility-assessment.crx").readAllBytes
+    )
 
     "return default Chrome options" in new Setup {
       val options: ChromeOptions = driverFactory.chromeOptions()

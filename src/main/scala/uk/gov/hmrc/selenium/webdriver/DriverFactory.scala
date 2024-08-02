@@ -21,8 +21,10 @@ import org.openqa.selenium.{MutableCapabilities, Proxy, WebDriver}
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
 import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
+import uk.gov.hmrc.selenium.webdriver.DriverFactory.BrowserExtensions
 
-import scala.io.Source
+import java.io.File
+import java.nio.file.{Files, StandardCopyOption}
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
@@ -96,15 +98,16 @@ class DriverFactory extends LazyLogging {
     val enabledBuild = sys.env.getOrElse("ACCESSIBILITY_ASSESSMENT", "false").toBoolean
     val browserName  = capabilities.getBrowserName
 
-    val accessibilityAssessmentExtension =
-      Source.fromResource(s"browser-extensions/chromium-accessibility-assessment").getLines().mkString
-
     if (enabledLocal || enabledBuild) {
       browserName match {
         case "chrome"        =>
-          capabilities.asInstanceOf[ChromeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
+          capabilities
+            .asInstanceOf[ChromeOptions]
+            .addExtensions(BrowserExtensions.chromiumAccessibilityAssessment)
         case "MicrosoftEdge" =>
-          capabilities.asInstanceOf[EdgeOptions].addEncodedExtensions(accessibilityAssessmentExtension)
+          capabilities
+            .asInstanceOf[EdgeOptions]
+            .addExtensions(BrowserExtensions.chromiumAccessibilityAssessment)
       }
 
       if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
@@ -182,3 +185,18 @@ class DriverFactory extends LazyLogging {
 }
 
 private case class DriverFactoryException(exception: String) extends RuntimeException(exception)
+
+object DriverFactory {
+  private object BrowserExtensions {
+    lazy val chromiumAccessibilityAssessment: File = {
+      val extractedBrowserExtension = File.createTempFile("chromium-accessibility-assessment", ".crx")
+      extractedBrowserExtension.deleteOnExit()
+      Files.copy(
+        getClass.getResourceAsStream("/browser-extensions/chromium-accessibility-assessment.crx"),
+        extractedBrowserExtension.toPath,
+        StandardCopyOption.REPLACE_EXISTING
+      )
+      extractedBrowserExtension
+    }
+  }
+}

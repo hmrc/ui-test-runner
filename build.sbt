@@ -21,10 +21,9 @@ val packageBrowserExtensions = Def.task {
   browserExtensions.map { browserExtensionSource =>
     val browserExtension = browserExtensionSource.name
 
-    log.info(s"Building, packaging, and base64 encoding browser extension: $browserExtension")
+    log.info(s"Building and packaging browser extension: $browserExtension")
 
     val buildScript = browserExtensionSource / "build.sh"
-
     if (buildScript.exists) {
       log.info("Running build script")
       val exitCode = Process(buildScript.absolutePath, browserExtensionSource).!
@@ -41,27 +40,15 @@ val packageBrowserExtensions = Def.task {
       (file, browserExtensionBuild.toURI.relativize(file.toURI).getPath)
     }
 
-    val encodedBrowserExtension =
-      (Compile / resourceManaged).value / "browser-extensions" / browserExtension
+    val packagedBrowserExtension =
+      (Compile / resourceManaged).value / "browser-extensions" / s"$browserExtension.crx"
 
-    IO.withTemporaryDirectory { tmpDir =>
-      val packagedBrowserExtension = tmpDir / s"$browserExtension.crx"
-
-      IO.zip(browserExtensionFiles, packagedBrowserExtension, None)
-
-      IO.write(
-        encodedBrowserExtension,
-        Base64.getEncoder.encodeToString(IO.readBytes(packagedBrowserExtension))
-      )
-    }
+    IO.zip(browserExtensionFiles, packagedBrowserExtension, None)
 
     log.info(
-      s"Browser extension built, packaged, and encoded ${encodedBrowserExtension.relativeTo(baseDirectory.value).getOrElse(encodedBrowserExtension)}"
+      s"Browser extension built and packaged ${packagedBrowserExtension.relativeTo(baseDirectory.value).get}"
     )
 
-    // We encode the browser extension because it makes using it simpler, otherwise we'd have to unzip
-    // the files into a temporary directory, whereas when it's base64 encoded we can just read it when
-    // initializing the browser
-    encodedBrowserExtension
+    packagedBrowserExtension
   }
 }
