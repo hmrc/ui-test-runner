@@ -4,6 +4,14 @@ A web extension for automatic accessibility checks.
 
 ## Usage
 
+### Install
+
+Install as follows:
+
+```bash
+npm install
+```
+
 ### Run
 
 Run as follows:
