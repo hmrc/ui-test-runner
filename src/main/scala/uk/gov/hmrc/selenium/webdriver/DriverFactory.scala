@@ -31,8 +31,8 @@ class DriverFactory extends LazyLogging {
 
   // Browser version to test in labs, not available for service teams
   private val edgeBrowserVersion    = sys.env.getOrElse("BROWSER_VERSION", "125")
-  private val firefoxBrowserVersion = sys.env.getOrElse("BROWSER_VERSION", "122")
-  private val chromeBrowserVersion  = sys.env.getOrElse("BROWSER_VERSION", "122")
+  private val firefoxBrowserVersion = sys.env.getOrElse("BROWSER_VERSION", "125")
+  private val chromeBrowserVersion  = sys.env.getOrElse("BROWSER_VERSION", "125")
   def initialise(): WebDriver       = {
     val browser = sys.props.get("browser").map(_.toLowerCase)
 
