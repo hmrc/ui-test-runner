@@ -153,7 +153,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("moz:firefoxOptions")
-        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, remote.active-protocols=3}}"
     }
 
     "return Firefox options when security assessment is enabled" in new Setup {
@@ -166,7 +166,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("moz:firefoxOptions")
-        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true}}"
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true, remote.active-protocols=3}}"
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
     }
 
@@ -180,7 +180,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("moz:firefoxOptions")
-        .toString                                shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2}}"
+        .toString                                shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, remote.active-protocols=3}}"
     }
 
   }
