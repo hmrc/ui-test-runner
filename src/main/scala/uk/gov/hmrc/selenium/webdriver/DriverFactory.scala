@@ -84,6 +84,7 @@ class DriverFactory extends LazyLogging {
     options.setBrowserVersion(firefoxBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
@@ -104,14 +105,16 @@ class DriverFactory extends LazyLogging {
           capabilities
             .asInstanceOf[ChromeOptions]
             .addExtensions(BrowserExtensions.chromiumAccessibilityAssessment)
+          logger.info("Accessibility assessment: Enabled")
         case "MicrosoftEdge" =>
           capabilities
             .asInstanceOf[EdgeOptions]
             .addExtensions(BrowserExtensions.chromiumAccessibilityAssessment)
+          logger.info("Accessibility assessment: Enabled")
+        case _               =>
+          logger.warn("Accessibility assessment: Not available for Firefox")
       }
 
-      if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
-      else logger.info("Accessibility assessment: Enabled")
     }
 
     capabilities
