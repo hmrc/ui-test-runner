@@ -21,6 +21,7 @@ See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/
 - System property `accessibility.assessment` is available to enable or disable the accessibility assessment. Arguments `true` and `false` are available, the default is `true`.
 - System property `security.assessment` is available to enable or disable the security assessment. Arguments `true` and `false` are available, the default is `false`.
 - System property `browser.option.headless` is available to enable or disable headless browser mode. Arguments `true` and `false` are available, the default is `true`.
+- System property `browser.logging` is available to enable browser console logs when using Chrome. Arguments `true` and `false` are available, the default is `false`.
 
 Set system properties when executing tests as follows:
 
