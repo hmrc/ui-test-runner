@@ -25,11 +25,8 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with Browser {
 
-  override def afterEach(): Unit = {
-    quitBrowser()
-
+  override def afterEach(): Unit =
     System.clearProperty("browser")
-  }
 
   "Browser" should {
 

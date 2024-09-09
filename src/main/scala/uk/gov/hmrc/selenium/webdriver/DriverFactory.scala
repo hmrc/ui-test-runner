@@ -21,19 +21,21 @@ import org.openqa.selenium.{MutableCapabilities, Proxy, WebDriver}
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
 import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
+import org.openqa.selenium.logging.{LogType, LoggingPreferences}
 import uk.gov.hmrc.selenium.webdriver.DriverFactory.BrowserExtensions
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
+import java.util.logging.Level
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
 
-  // Browser version to test in labs, not available for service teams
   private val edgeBrowserVersion    = sys.env.getOrElse("BROWSER_VERSION", "125")
   private val firefoxBrowserVersion = sys.env.getOrElse("BROWSER_VERSION", "125")
   private val chromeBrowserVersion  = sys.env.getOrElse("BROWSER_VERSION", "125")
-  def initialise(): WebDriver       = {
+
+  def initialise(): WebDriver = {
     val browser = sys.props.get("browser").map(_.toLowerCase)
 
     browser match {
@@ -51,6 +53,7 @@ class DriverFactory extends LazyLogging {
     options.setBrowserVersion(chromeBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    browserLogging(options)
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
@@ -68,6 +71,7 @@ class DriverFactory extends LazyLogging {
     options.setBrowserVersion(edgeBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    browserLogging(options)
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
@@ -84,6 +88,8 @@ class DriverFactory extends LazyLogging {
     options.setBrowserVersion(firefoxBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    browserLogging(options)
+    accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
@@ -91,6 +97,26 @@ class DriverFactory extends LazyLogging {
     options.setAcceptInsecureCerts(true)
 
     options
+  }
+
+  private def browserLogging(capabilities: MutableCapabilities): MutableCapabilities = {
+    val enabledLocal = sys.props.getOrElse("browser.logging", "false").toBoolean
+    val enabledBuild = sys.env.getOrElse("BROWSER_LOGGING", "false").toBoolean
+    val browserName  = capabilities.getBrowserName
+
+    if (enabledLocal || enabledBuild) {
+      browserName match {
+        case "chrome" =>
+          val logPrefs = new LoggingPreferences()
+          logPrefs.enable(LogType.BROWSER, Level.ALL)
+          capabilities
+            .setCapability("goog:loggingPrefs", logPrefs)
+          logger.info(s"Browser logging: Enabled")
+        case _        =>
+          logger.warn(s"Browser logging: Not available for $browserName")
+      }
+    }
+    capabilities
   }
 
   private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
@@ -104,14 +130,16 @@ class DriverFactory extends LazyLogging {
           capabilities
             .asInstanceOf[ChromeOptions]
             .addExtensions(BrowserExtensions.chromiumAccessibilityAssessment)
+          logger.info("Accessibility assessment: Enabled")
         case "MicrosoftEdge" =>
           capabilities
             .asInstanceOf[EdgeOptions]
             .addExtensions(BrowserExtensions.chromiumAccessibilityAssessment)
+          logger.info("Accessibility assessment: Enabled")
+        case _               =>
+          logger.warn("Accessibility assessment: Not available for Firefox")
       }
 
-      if (browserName == "firefox") logger.warn("Accessibility assessment: Not available for Firefox")
-      else logger.info("Accessibility assessment: Enabled")
     }
 
     capabilities
