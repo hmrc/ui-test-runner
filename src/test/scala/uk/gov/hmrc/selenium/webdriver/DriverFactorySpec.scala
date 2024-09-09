@@ -81,6 +81,27 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
+    "return Chrome logging preferences when browser logging is enabled" in new Setup {
+      System.setProperty("browser.logging", "true")
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      options.asMap().get("browserName") shouldBe "chrome"
+      options
+        .asMap()
+        .get("goog:loggingPrefs")
+        .toString                          should include("org.openqa.selenium.logging.LoggingPreferences")
+    }
+
+    "return no Chrome logging preferences when browser logging is disabled" in new Setup {
+      System.setProperty("browser.logging", "false")
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      options.asMap().get("browserName")               shouldBe "chrome"
+      Option(options.asMap().get("goog:loggingPrefs")) shouldBe None
+    }
+
     "return Chrome options when browser option headless is disabled" in new Setup {
       System.setProperty("browser.option.headless", "false")
 
