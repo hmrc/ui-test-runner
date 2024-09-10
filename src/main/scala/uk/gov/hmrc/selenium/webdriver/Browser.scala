@@ -46,13 +46,19 @@ trait Browser extends LazyLogging {
     }
 
   private def outputBrowserLogs(): Unit = {
-    val capabilities = Driver.instance.asInstanceOf[RemoteWebDriver].getCapabilities
-    val browserName  = capabilities.getBrowserName
+    val enabledLocal = sys.props.getOrElse("browser.logging", "false").toBoolean
+    val enabledBuild = sys.env.getOrElse("BROWSER_LOGGING", "false").toBoolean
 
-    if (browserName == "chrome") {
-      val logs: LogEntries = Driver.instance.manage().logs().get(LogType.BROWSER)
-      for (entry <- logs.getAll.asScala)
-        logger.info(s"${entry.getLevel} ${entry.getMessage}")
+    if (enabledLocal || enabledBuild) {
+      val capabilities = Driver.instance.asInstanceOf[RemoteWebDriver].getCapabilities
+      val browserName  = capabilities.getBrowserName
+
+      if (browserName == "chrome") {
+        val logs: LogEntries = Driver.instance.manage().logs().get(LogType.BROWSER)
+        for (entry <- logs.getAll.asScala)
+          logger.info(s"${entry.getLevel} ${entry.getMessage}")
+      }
     }
+
   }
 }
