@@ -49,6 +49,6 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "axe-core": "^4.10.0"
+    "axe-core": "^4.10.2"
   }
 }
