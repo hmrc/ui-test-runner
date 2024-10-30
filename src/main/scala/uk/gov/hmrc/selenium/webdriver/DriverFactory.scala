@@ -59,7 +59,9 @@ class DriverFactory extends LazyLogging {
     downloadDirectory(options)
     headless(options)
     options.addArguments("--disable-search-engine-choice-screen")
-    options.addArguments("--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints")
+    options.addArguments(
+      "--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints"
+    )
     options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
 
