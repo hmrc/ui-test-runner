@@ -33,7 +33,7 @@ class DriverFactory extends LazyLogging {
 
   private val edgeBrowserVersion    = sys.env.getOrElse("BROWSER_VERSION", "126")
   private val firefoxBrowserVersion = sys.env.getOrElse("BROWSER_VERSION", "126")
-  private val chromeBrowserVersion  = sys.env.getOrElse("BROWSER_VERSION", "130")
+  private val chromeBrowserVersion  = sys.env.getOrElse("BROWSER_VERSION", "126")
 
   def initialise(): WebDriver = {
     val browser = sys.props.get("browser").map(_.toLowerCase)
@@ -58,7 +58,10 @@ class DriverFactory extends LazyLogging {
     securityAssessment(options)
     downloadDirectory(options)
     headless(options)
-
+    options.addArguments("--disable-search-engine-choice-screen")
+    options.addArguments(
+      "--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints"
+    )
     options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
 

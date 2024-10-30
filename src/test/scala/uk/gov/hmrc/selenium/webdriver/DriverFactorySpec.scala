@@ -51,7 +51,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when accessibility assessment is disabled" in new Setup {
@@ -64,7 +64,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-features=MediaRouter], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when security assessment is enabled" in new Setup {
@@ -78,7 +78,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome logging preferences when browser logging is enabled" in new Setup {
@@ -112,7 +112,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return default Edge options" in new Setup {
