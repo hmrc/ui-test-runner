@@ -38,12 +38,14 @@ trait Browser extends LazyLogging {
    * @see
    * https://www.selenium.dev/documentation/grid/configuration/cli_options/#complete-sample-code-in-java
    */
-  protected def quitBrowser(): Unit =
+  protected def quitBrowser(): Unit = {
+    val setAccessibilityTimeout = sys.props.getOrElse("accessibility.timeout", "250").toInt
     if (Driver.instance != null) {
       outputBrowserLogs()
-      TimeUnit.MILLISECONDS.sleep(250)
+      TimeUnit.MILLISECONDS.sleep(setAccessibilityTimeout)
       Driver.instance.quit()
     }
+  }
 
   private def outputBrowserLogs(): Unit = {
     val enabledLocal = sys.props.getOrElse("browser.logging", "false").toBoolean
