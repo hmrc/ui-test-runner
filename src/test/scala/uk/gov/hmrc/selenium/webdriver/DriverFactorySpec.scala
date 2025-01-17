@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import com.typesafe.config.ConfigFactory
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.edge.EdgeOptions
 import org.openqa.selenium.firefox.FirefoxOptions
@@ -36,6 +37,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     System.clearProperty("accessibility.assessment")
     System.clearProperty("security.assessment")
     System.clearProperty("browser.option.headless")
+    ConfigFactory.invalidateCaches()
   }
 
   "DriverFactory" should {
@@ -56,6 +58,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Chrome options when accessibility assessment is disabled" in new Setup {
       System.setProperty("accessibility.assessment", "false")
+      ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
@@ -69,6 +72,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Chrome options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
+      ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
@@ -83,6 +87,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Chrome logging preferences when browser logging is enabled" in new Setup {
       System.setProperty("browser.logging", "true")
+      ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
@@ -95,6 +100,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return no Chrome logging preferences when browser logging is disabled" in new Setup {
       System.setProperty("browser.logging", "false")
+      ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
@@ -104,6 +110,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Chrome options when browser option headless is disabled" in new Setup {
       System.setProperty("browser.option.headless", "false")
+      ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
@@ -128,6 +135,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Edge options when accessibility assessment is disabled" in new Setup {
       System.setProperty("accessibility.assessment", "false")
+      ConfigFactory.invalidateCaches()
 
       val options: EdgeOptions = driverFactory.edgeOptions()
 
@@ -141,6 +149,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Edge options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
+      ConfigFactory.invalidateCaches()
 
       val options: EdgeOptions = driverFactory.edgeOptions()
 
@@ -155,6 +164,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Edge options when browser option headless is disabled" in new Setup {
       System.setProperty("browser.option.headless", "false")
+      ConfigFactory.invalidateCaches()
 
       val options: EdgeOptions = driverFactory.edgeOptions()
 
@@ -179,6 +189,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Firefox options when security assessment is enabled" in new Setup {
       System.setProperty("security.assessment", "true")
+      ConfigFactory.invalidateCaches()
 
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
@@ -193,6 +204,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return Firefox options when browser option headless is disabled" in new Setup {
       System.setProperty("browser.option.headless", "false")
+      ConfigFactory.invalidateCaches()
 
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
@@ -203,7 +215,5 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .get("moz:firefoxOptions")
         .toString                                shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, remote.active-protocols=3}}"
     }
-
   }
-
 }

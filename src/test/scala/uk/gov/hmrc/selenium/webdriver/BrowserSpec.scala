@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import com.typesafe.config.ConfigFactory
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.edge.EdgeDriver
 import org.openqa.selenium.firefox.FirefoxDriver
@@ -25,12 +26,15 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with Browser {
 
-  override def afterEach(): Unit =
+  override def afterEach(): Unit = {
     System.clearProperty("browser")
+    ConfigFactory.invalidateCaches()
+  }
 
   "Browser" should {
     "start and quit Chrome browser with default options" in {
       System.setProperty("browser", "chrome")
+      ConfigFactory.invalidateCaches()
 
       startBrowser()
 
@@ -59,6 +63,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
 
     "start and quit Firefox browser with default options" in {
       System.setProperty("browser", "firefox")
+      ConfigFactory.invalidateCaches()
 
       startBrowser()
 
@@ -72,6 +77,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
 
     "throw an exception for unknown browser" in {
       System.setProperty("browser", "test")
+      ConfigFactory.invalidateCaches()
 
       val exception: Exception = intercept[Exception] {
         startBrowser()
@@ -82,6 +88,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
 
     "throw an exception for undefined browser" in {
       System.clearProperty("browser")
+      ConfigFactory.invalidateCaches()
 
       val exception: Exception = intercept[Exception] {
         startBrowser()

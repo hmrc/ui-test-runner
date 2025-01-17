@@ -22,8 +22,8 @@ import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
 import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.logging.{LogType, LoggingPreferences}
-import uk.gov.hmrc.configuration.TestEnvironment
 import uk.gov.hmrc.selenium.webdriver.DriverFactory.BrowserExtensions
+import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
@@ -32,19 +32,18 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
 
-  private val edgeBrowserVersion    = TestEnvironment.browserVersion
-  private val firefoxBrowserVersion = TestEnvironment.browserVersion
-  private val chromeBrowserVersion  = TestEnvironment.browserVersion
+  private val edgeBrowserVersion    = TestRunnerConfig.browserVersion
+  private val firefoxBrowserVersion = TestRunnerConfig.browserVersion
+  private val chromeBrowserVersion  = TestRunnerConfig.browserVersion
 
-  def initialise(): WebDriver = {
-    TestEnvironment.browserType match {
+  def initialise(): WebDriver =
+    TestRunnerConfig.browserType match {
       case Some("chrome")  => new ChromeDriver(chromeOptions())
       case Some("edge")    => new EdgeDriver(edgeOptions())
       case Some("firefox") => new FirefoxDriver(firefoxOptions())
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
-  }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
@@ -102,9 +101,9 @@ class DriverFactory extends LazyLogging {
   }
 
   private def browserLogging(capabilities: MutableCapabilities): MutableCapabilities = {
-    val browserName  = capabilities.getBrowserName
+    val browserName = capabilities.getBrowserName
 
-    if (TestEnvironment.browserLoggingEnabled)
+    if (TestRunnerConfig.browserLoggingEnabled)
       browserName match {
         case "chrome" =>
           val logPrefs = new LoggingPreferences()
@@ -120,9 +119,9 @@ class DriverFactory extends LazyLogging {
   }
 
   private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
-    val browserName  = capabilities.getBrowserName
+    val browserName = capabilities.getBrowserName
 
-    if (TestEnvironment.accessibilityAssessmentEnabled)
+    if (TestRunnerConfig.accessibilityAssessmentEnabled)
       browserName match {
         case "chrome"        =>
           capabilities
@@ -142,12 +141,12 @@ class DriverFactory extends LazyLogging {
   }
 
   private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
-    val browserName  = capabilities.getBrowserName
-    val proxy        = new Proxy()
+    val browserName = capabilities.getBrowserName
+    val proxy       = new Proxy()
 
-    if (TestEnvironment.securityAssessmentEnabled) {
-      proxy.setHttpProxy(TestEnvironment.zapHost)
-      proxy.setSslProxy(TestEnvironment.zapHost)
+    if (TestRunnerConfig.securityAssessmentEnabled) {
+      proxy.setHttpProxy(TestRunnerConfig.zapHost)
+      proxy.setSslProxy(TestRunnerConfig.zapHost)
 
       browserName match {
         case "chrome"        => proxy.setNoProxy("<-loopback>")
@@ -157,16 +156,16 @@ class DriverFactory extends LazyLogging {
       }
 
       capabilities.setCapability("proxy", proxy)
-      logger.info(s"Security assessment: Enabled (${TestEnvironment.zapHost})")
+      logger.info(s"Security assessment: Enabled (${TestRunnerConfig.zapHost})")
     }
 
     capabilities
   }
 
   private def headless(capabilities: MutableCapabilities): MutableCapabilities = {
-    val browserName  = capabilities.getBrowserName
+    val browserName = capabilities.getBrowserName
 
-    if (TestEnvironment.browserOptionHeadLessEnabled) {
+    if (TestRunnerConfig.browserOptionHeadLessEnabled) {
       browserName match {
         case "chrome"        =>
           capabilities
