@@ -29,7 +29,6 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
     System.clearProperty("browser")
 
   "Browser" should {
-
     "start and quit Chrome browser with default options" in {
       System.setProperty("browser", "chrome")
 
@@ -90,7 +89,5 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
 
       exception.getMessage shouldBe "System property 'browser' is required but was not defined."
     }
-
   }
-
 }
