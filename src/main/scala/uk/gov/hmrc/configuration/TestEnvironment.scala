@@ -20,25 +20,30 @@ import com.typesafe.config.{Config, ConfigFactory}
 
 object TestEnvironment {
 
+  // Everything is a `def` so that tests can invalidate the config
   private def configuration: Config            = ConfigFactory.load()
   private def environment: String              = configuration.getString("environment")
   private def defaultConfiguration: Config     = configuration.getConfig("local")
   private def environmentConfiguration: Config = configuration.getConfig(environment).withFallback(defaultConfiguration)
 
   def url(service: String): String = {
-    val host = environment match {
-      case "local" => s"$serviceHost:${servicePort(service)}"
-      case _       => s"${environmentConfiguration.getString("services.host")}"
+    val port = environment match {
+      case "local" => s":${servicePort(service)}"
+      case _       => ""
     }
 
-    s"$host${serviceRoute(service)}"
+    s"${serviceHost(service)}$port${serviceRoute(service)}"
   }
 
-  private def serviceHost: String = environmentConfiguration.getString("services.host")
+  private def serviceHost(service: String): String =
+    if (environmentConfiguration.hasPath(s"services.$service.host"))
+      environmentConfiguration.getString(s"services.$service.host")
+    else
+      environmentConfiguration.getString("services.host")
 
-  private def servicePort(service: String): String = environmentConfiguration.getString(s"services.$service.port")
+  private def servicePort(service: String): String =
+    environmentConfiguration.getString(s"services.$service.port")
 
   private def serviceRoute(service: String): String =
     environmentConfiguration.getString(s"services.$service.productionRoute")
-
 }

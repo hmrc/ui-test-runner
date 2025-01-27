@@ -23,6 +23,7 @@ import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.logging.{LogType, LoggingPreferences}
 import uk.gov.hmrc.selenium.webdriver.DriverFactory.BrowserExtensions
+import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
@@ -31,21 +32,18 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
 
-  private val edgeBrowserVersion    = sys.env.getOrElse("BROWSER_VERSION", "126")
-  private val firefoxBrowserVersion = sys.env.getOrElse("BROWSER_VERSION", "126")
-  private val chromeBrowserVersion  = sys.env.getOrElse("BROWSER_VERSION", "126")
+  private val edgeBrowserVersion    = TestRunnerConfig.browserVersion
+  private val firefoxBrowserVersion = TestRunnerConfig.browserVersion
+  private val chromeBrowserVersion  = TestRunnerConfig.browserVersion
 
-  def initialise(): WebDriver = {
-    val browser = sys.props.get("browser").map(_.toLowerCase)
-
-    browser match {
+  def initialise(): WebDriver =
+    TestRunnerConfig.browserType match {
       case Some("chrome")  => new ChromeDriver(chromeOptions())
       case Some("edge")    => new EdgeDriver(edgeOptions())
       case Some("firefox") => new FirefoxDriver(firefoxOptions())
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
-  }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
@@ -103,11 +101,9 @@ class DriverFactory extends LazyLogging {
   }
 
   private def browserLogging(capabilities: MutableCapabilities): MutableCapabilities = {
-    val enabledLocal = sys.props.getOrElse("browser.logging", "false").toBoolean
-    val enabledBuild = sys.env.getOrElse("BROWSER_LOGGING", "false").toBoolean
-    val browserName  = capabilities.getBrowserName
+    val browserName = capabilities.getBrowserName
 
-    if (enabledLocal || enabledBuild) {
+    if (TestRunnerConfig.browserLoggingEnabled)
       browserName match {
         case "chrome" =>
           val logPrefs = new LoggingPreferences()
@@ -118,16 +114,14 @@ class DriverFactory extends LazyLogging {
         case _        =>
           logger.warn(s"Browser logging: Not available for $browserName")
       }
-    }
+
     capabilities
   }
 
   private def accessibilityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
-    val enabledLocal = sys.props.getOrElse("accessibility.assessment", "true").toBoolean
-    val enabledBuild = sys.env.getOrElse("ACCESSIBILITY_ASSESSMENT", "false").toBoolean
-    val browserName  = capabilities.getBrowserName
+    val browserName = capabilities.getBrowserName
 
-    if (enabledLocal || enabledBuild) {
+    if (TestRunnerConfig.accessibilityAssessmentEnabled)
       browserName match {
         case "chrome"        =>
           capabilities
@@ -143,20 +137,16 @@ class DriverFactory extends LazyLogging {
           logger.warn("Accessibility assessment: Not available for Firefox")
       }
 
-    }
-
     capabilities
   }
 
   private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
-    val enabledLocal = sys.props.getOrElse("security.assessment", "false").toBoolean
-    val enabledBuild = sys.env.getOrElse("SECURITY_ASSESSMENT", "false").toBoolean
-    val browserName  = capabilities.getBrowserName
-    val proxy        = new Proxy()
+    val browserName = capabilities.getBrowserName
+    val proxy       = new Proxy()
 
-    if (enabledLocal || enabledBuild) {
-      proxy.setHttpProxy("localhost:11000")
-      proxy.setSslProxy("localhost:11000")
+    if (TestRunnerConfig.securityAssessmentEnabled) {
+      proxy.setHttpProxy(TestRunnerConfig.zapHost)
+      proxy.setSslProxy(TestRunnerConfig.zapHost)
 
       browserName match {
         case "chrome"        => proxy.setNoProxy("<-loopback>")
@@ -166,18 +156,16 @@ class DriverFactory extends LazyLogging {
       }
 
       capabilities.setCapability("proxy", proxy)
-      logger.info(s"Security assessment: Enabled (localhost:11000)")
+      logger.info(s"Security assessment: Enabled (${TestRunnerConfig.zapHost})")
     }
 
     capabilities
   }
 
   private def headless(capabilities: MutableCapabilities): MutableCapabilities = {
-    val enabledLocal = sys.props.getOrElse("browser.option.headless", "true").toBoolean
-    val enabledBuild = sys.env.getOrElse("BROWSER_OPTION_HEADLESS", "false").toBoolean
-    val browserName  = capabilities.getBrowserName
+    val browserName = capabilities.getBrowserName
 
-    if (enabledLocal || enabledBuild) {
+    if (TestRunnerConfig.browserOptionHeadLessEnabled) {
       browserName match {
         case "chrome"        =>
           capabilities

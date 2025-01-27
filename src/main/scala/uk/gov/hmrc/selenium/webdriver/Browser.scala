@@ -19,6 +19,7 @@ package uk.gov.hmrc.selenium.webdriver
 import com.typesafe.scalalogging.LazyLogging
 import org.openqa.selenium.logging.{LogEntries, LogType}
 import org.openqa.selenium.remote.RemoteWebDriver
+import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.util.concurrent.TimeUnit
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -38,20 +39,15 @@ trait Browser extends LazyLogging {
    * @see
    * https://www.selenium.dev/documentation/grid/configuration/cli_options/#complete-sample-code-in-java
    */
-  protected def quitBrowser(): Unit = {
-    val setAccessibilityTimeout = sys.props.getOrElse("accessibility.timeout", "250").toInt
+  protected def quitBrowser(): Unit =
     if (Driver.instance != null) {
       outputBrowserLogs()
-      TimeUnit.MILLISECONDS.sleep(setAccessibilityTimeout)
+      TimeUnit.MILLISECONDS.sleep(TestRunnerConfig.accessibilityTimeout.toMillis)
       Driver.instance.quit()
     }
-  }
 
-  private def outputBrowserLogs(): Unit = {
-    val enabledLocal = sys.props.getOrElse("browser.logging", "false").toBoolean
-    val enabledBuild = sys.env.getOrElse("BROWSER_LOGGING", "false").toBoolean
-
-    if (enabledLocal || enabledBuild) {
+  private def outputBrowserLogs(): Unit =
+    if (TestRunnerConfig.browserLoggingEnabled) {
       val capabilities = Driver.instance.asInstanceOf[RemoteWebDriver].getCapabilities
       val browserName  = capabilities.getBrowserName
 
@@ -61,6 +57,4 @@ trait Browser extends LazyLogging {
           logger.info(s"${entry.getLevel} ${entry.getMessage}")
       }
     }
-
-  }
 }
