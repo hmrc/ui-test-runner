@@ -32,11 +32,14 @@ object TestEnvironment {
       case _       => ""
     }
 
-    s"$serviceHost$port${serviceRoute(service)}"
+    s"${serviceHost(service)}$port${serviceRoute(service)}"
   }
 
-  private def serviceHost: String =
-    environmentConfiguration.getString("services.host")
+  private def serviceHost(service: String): String =
+    if (environmentConfiguration.hasPath(s"services.$service.host"))
+      environmentConfiguration.getString(s"services.$service.host")
+    else
+      environmentConfiguration.getString("services.host")
 
   private def servicePort(service: String): String =
     environmentConfiguration.getString(s"services.$service.port")
