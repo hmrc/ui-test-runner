@@ -28,12 +28,16 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
 
   override def afterEach(): Unit = {
     System.clearProperty("browser")
+    System.clearProperty("browser.version")
     ConfigFactory.invalidateCaches()
   }
 
   "Browser" should {
     "start and quit Chrome browser with default options" in {
       System.setProperty("browser", "chrome")
+      System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
+      System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
+      System.setProperty("browser.version", "135")
       ConfigFactory.invalidateCaches()
 
       startBrowser()
@@ -63,6 +67,8 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
 
     "start and quit Firefox browser with default options" in {
       System.setProperty("browser", "firefox")
+      System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
+      System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
       ConfigFactory.invalidateCaches()
 
       startBrowser()
