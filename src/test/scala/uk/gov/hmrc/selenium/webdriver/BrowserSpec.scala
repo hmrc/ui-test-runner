@@ -29,6 +29,8 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
   override def afterEach(): Unit = {
     System.clearProperty("browser")
     System.clearProperty("browser.version")
+    System.clearProperty("driver-mirror-url")
+    System.clearProperty("browser-mirror-url")
     ConfigFactory.invalidateCaches()
   }
 
