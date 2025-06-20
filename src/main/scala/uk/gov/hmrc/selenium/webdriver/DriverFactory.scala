@@ -32,9 +32,9 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
 
-  private val edgeBrowserVersion    = TestRunnerConfig.browserVersion
-  private val firefoxBrowserVersion = TestRunnerConfig.browserVersion
-  private val chromeBrowserVersion  = TestRunnerConfig.browserVersion
+  private val edgeBrowserVersion    = TestRunnerConfig.browserEdgeVersion
+  private val firefoxBrowserVersion = TestRunnerConfig.browserFirefoxVersion
+  private val chromeBrowserVersion  = TestRunnerConfig.browserChromeVersion
 
   def initialise(): WebDriver =
     TestRunnerConfig.browserType match {
