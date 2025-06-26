@@ -39,7 +39,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       System.setProperty("browser", "chrome")
       System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
       System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
-      System.setProperty("browser.version", "136")
+      System.setProperty("browser.version", "126")
       ConfigFactory.invalidateCaches()
 
       startBrowser()
@@ -71,6 +71,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       System.setProperty("browser", "firefox")
       System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
       System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
+      System.setProperty("browser.version", "136")
       ConfigFactory.invalidateCaches()
 
       startBrowser()
