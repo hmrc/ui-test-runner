@@ -58,11 +58,11 @@ object TestRunnerConfig {
     sys.props.getOrElse("browser.option.headless", "true").toBoolean
 
   def browserChromeVersion: String =
-    sys.props.getOrElse("browser.version", "126")
+    sys.props.getOrElse("browser.version", "136")
 
   def browserEdgeVersion: String =
-    sys.props.getOrElse("browser.version", "126")
+    sys.props.getOrElse("browser.version", "136")
 
   def browserFirefoxVersion: String =
-    sys.props.getOrElse("browser.version", "126")
+    sys.props.getOrElse("browser.version", "136")
 }
