@@ -128,7 +128,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
-      // Chrome: BiDi uses webSocketUrl = true
       options.asMap().get("webSocketUrl") shouldBe true
     }
 
@@ -138,7 +137,6 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
       val options: ChromeOptions = driverFactory.chromeOptions()
 
-      // Should not include BiDi capability
       Option(options.asMap().get("webSocketUrl")) shouldBe None
     }
 
@@ -202,17 +200,15 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
       val options: EdgeOptions = driverFactory.edgeOptions()
 
-      // Edge: BiDi uses webSocketUrl = true
       options.asMap().get("webSocketUrl") shouldBe true
     }
 
-    "not set BiDi capability for Firefox regardless of config" in new Setup {
-      System.setProperty("bidi", "true")
+    "not set BiDi capability when disabled in config for Edge" in new Setup {
+      System.setProperty("bidi", "false")
       ConfigFactory.invalidateCaches()
 
-      val options: FirefoxOptions = driverFactory.firefoxOptions()
+      val options: EdgeOptions = driverFactory.edgeOptions()
 
-      // Firefox should not get webSocketUrl at all
       Option(options.asMap().get("webSocketUrl")) shouldBe None
     }
 
@@ -255,5 +251,24 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .get("moz:firefoxOptions")
         .toString                                shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, remote.active-protocols=3}}"
     }
+
+    "set BiDi capability when enabled in config for Firefox" in new Setup {
+      System.setProperty("bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      options.asMap().get("webSocketUrl") shouldBe true
+    }
+
+    "not set BiDi capability for Firefox regardless of config" in new Setup {
+      System.setProperty("bidi", "false")
+      ConfigFactory.invalidateCaches()
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      Option(options.asMap().get("webSocketUrl")) shouldBe None
+    }
+
   }
 }
