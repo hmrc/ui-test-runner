@@ -42,6 +42,9 @@ object TestRunnerConfig {
       .Try(configuration.getDuration("accessibility.timeout").toScala)
       .getOrElse(configuration.getInt("accessibility.timeout").millis)
 
+  def biDiEnabled: Boolean =
+    configuration.getBoolean("bidi")
+
   // Since there is a system property "browser" which is a String
   // this is incompatible with HOCON where browser.logger etc mean browser is an Object
   // For now stick with system properties only

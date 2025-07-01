@@ -122,6 +122,26 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .toString                                shouldBe s"{args=[--disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
+    "set BiDi capability when enabled in config for Chrome" in new Setup {
+      System.setProperty("bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      // Chrome: BiDi uses webSocketUrl = true
+      options.asMap().get("webSocketUrl") shouldBe true
+    }
+
+    "not set BiDi capability when disabled in config for Chrome" in new Setup {
+      System.setProperty("bidi", "false")
+      ConfigFactory.invalidateCaches()
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      // Should not include BiDi capability
+      Option(options.asMap().get("webSocketUrl")) shouldBe None
+    }
+
     "return default Edge options" in new Setup {
       val options: EdgeOptions = driverFactory.edgeOptions()
 
@@ -174,6 +194,26 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .asMap()
         .get("ms:edgeOptions")
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+    }
+
+    "set BiDi capability when enabled in config for Edge" in new Setup {
+      System.setProperty("bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: EdgeOptions = driverFactory.edgeOptions()
+
+      // Edge: BiDi uses webSocketUrl = true
+      options.asMap().get("webSocketUrl") shouldBe true
+    }
+
+    "not set BiDi capability for Firefox regardless of config" in new Setup {
+      System.setProperty("bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      // Firefox should not get webSocketUrl at all
+      Option(options.asMap().get("webSocketUrl")) shouldBe None
     }
 
     "return default Firefox options" in new Setup {
