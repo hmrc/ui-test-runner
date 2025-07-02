@@ -72,7 +72,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
       System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
       ConfigFactory.invalidateCaches()
-
+      // hey i am a comment
       startBrowser()
 
       Driver.instance.asInstanceOf[FirefoxDriver].getSessionId                  shouldNot be(null)
