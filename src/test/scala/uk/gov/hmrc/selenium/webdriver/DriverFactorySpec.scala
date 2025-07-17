@@ -122,6 +122,24 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .toString                                shouldBe s"{args=[--disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
+    "set BiDi capability when enabled in config for Chrome" in new Setup {
+      System.setProperty("bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      options.asMap().get("webSocketUrl") shouldBe true
+    }
+
+    "not set BiDi capability when disabled in config for Chrome" in new Setup {
+      System.setProperty("bidi", "false")
+      ConfigFactory.invalidateCaches()
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      Option(options.asMap().get("webSocketUrl")) shouldBe None
+    }
+
     "return default Edge options" in new Setup {
       val options: EdgeOptions = driverFactory.edgeOptions()
 
@@ -176,6 +194,24 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
+    "set BiDi capability when enabled in config for Edge" in new Setup {
+      System.setProperty("bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: EdgeOptions = driverFactory.edgeOptions()
+
+      options.asMap().get("webSocketUrl") shouldBe true
+    }
+
+    "not set BiDi capability when disabled in config for Edge" in new Setup {
+      System.setProperty("bidi", "false")
+      ConfigFactory.invalidateCaches()
+
+      val options: EdgeOptions = driverFactory.edgeOptions()
+
+      Option(options.asMap().get("webSocketUrl")) shouldBe None
+    }
+
     "return default Firefox options" in new Setup {
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
@@ -215,5 +251,24 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .get("moz:firefoxOptions")
         .toString                                shouldBe s"{prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, remote.active-protocols=1}}"
     }
+
+    "set BiDi capability when enabled in config for Firefox" in new Setup {
+      System.setProperty("bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      options.asMap().get("webSocketUrl") shouldBe true
+    }
+
+    "not set BiDi capability for Firefox regardless of config" in new Setup {
+      System.setProperty("bidi", "false")
+      ConfigFactory.invalidateCaches()
+
+      val options: FirefoxOptions = driverFactory.firefoxOptions()
+
+      Option(options.asMap().get("webSocketUrl")) shouldBe None
+    }
+
   }
 }

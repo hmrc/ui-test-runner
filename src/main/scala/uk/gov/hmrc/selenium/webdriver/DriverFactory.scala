@@ -52,6 +52,7 @@ class DriverFactory extends LazyLogging {
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
     browserLogging(options)
+    enableBiDi(options)
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
@@ -73,6 +74,7 @@ class DriverFactory extends LazyLogging {
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
     browserLogging(options)
+    enableBiDi(options)
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
@@ -90,6 +92,7 @@ class DriverFactory extends LazyLogging {
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
     browserLogging(options)
+    enableBiDi(options)
     accessibilityAssessment(options)
     securityAssessment(options)
     downloadDirectory(options)
@@ -136,6 +139,23 @@ class DriverFactory extends LazyLogging {
         case _               =>
           logger.warn("Accessibility assessment: Not available for Firefox")
       }
+
+    capabilities
+  }
+
+  private def enableBiDi(capabilities: MutableCapabilities): MutableCapabilities = {
+    if (!TestRunnerConfig.biDiEnabled) {
+      logger.info("BiDi not enabled via config.")
+      return capabilities
+    }
+
+    val browser = capabilities.getBrowserName.toLowerCase
+
+    // enables the WebSocket connection for bidirectional communication
+    // https://www.selenium.dev/documentation/webdriver/bidi/
+    capabilities.setCapability("webSocketUrl", true)
+    logger.info(s"BiDi enabled for $browser (webSocketUrl=true).")
+    logger.debug(s"Capabilities after BiDi config: ${capabilities.asMap()}")
 
     capabilities
   }
