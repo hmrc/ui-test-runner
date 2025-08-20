@@ -51,6 +51,7 @@ class DriverFactory extends LazyLogging {
     options.setBrowserVersion(chromeBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    enableBiDi(options)
     browserLogging(options)
     accessibilityAssessment(options)
     securityAssessment(options)
@@ -151,7 +152,7 @@ class DriverFactory extends LazyLogging {
       browserName match {
         case "chrome"        => proxy.setNoProxy("<-loopback>")
         case "MicrosoftEdge" => proxy.setNoProxy("<-loopback>")
-        case "firefox"       =>
+        case "firefox"       => proxy.setNoProxy("<-loopback>")
           capabilities.asInstanceOf[FirefoxOptions].addPreference("network.proxy.allow_hijacking_localhost", true)
       }
 
@@ -180,6 +181,23 @@ class DriverFactory extends LazyLogging {
 
       logger.info("Browser option (headless): Enabled")
     }
+
+    capabilities
+  }
+
+  private def enableBiDi(capabilities: MutableCapabilities): MutableCapabilities = {
+    if (!TestRunnerConfig.biDiEnabled) {
+      logger.info("BiDi not enabled via config.")
+      return capabilities
+    }
+
+    val browser = capabilities.getBrowserName.toLowerCase
+
+    // enables the WebSocket connection for bidirectional communication
+    // https://www.selenium.dev/documentation/webdriver/bidi/
+    capabilities.setCapability("webSocketUrl", true)
+    logger.info(s"BiDi enabled for $browser (webSocketUrl=true).")
+    logger.debug(s"Capabilities after BiDi config: ${capabilities.asMap()}")
 
     capabilities
   }

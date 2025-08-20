@@ -122,6 +122,24 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .toString                                shouldBe s"{args=[--disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
+    "set BiDi capability when enabled in config for Chrome" in new Setup {
+      System.setProperty("browser.bidi", "true")
+      ConfigFactory.invalidateCaches()
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      options.asMap().get("webSocketUrl") shouldBe true
+    }
+
+    "not set BiDi capability when disabled in config for Chrome" in new Setup {
+      System.setProperty("browser.bidi", "false")
+      ConfigFactory.invalidateCaches()
+
+      val options: ChromeOptions = driverFactory.chromeOptions()
+
+      Option(options.asMap().get("webSocketUrl")) shouldBe None
+    }
+
     "return default Edge options" in new Setup {
       val options: EdgeOptions = driverFactory.edgeOptions()
 

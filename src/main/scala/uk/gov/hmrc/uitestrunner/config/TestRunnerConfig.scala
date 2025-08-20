@@ -54,6 +54,9 @@ object TestRunnerConfig {
   def browserLoggingEnabled: Boolean =
     sys.props.getOrElse("browser.logging", "false").toBoolean
 
+  def biDiEnabled: Boolean =
+    sys.props.getOrElse("browser.bidi", "false").toBoolean
+
   def browserOptionHeadLessEnabled: Boolean =
     sys.props.getOrElse("browser.option.headless", "true").toBoolean
 
