@@ -152,7 +152,8 @@ class DriverFactory extends LazyLogging {
       browserName match {
         case "chrome"        => proxy.setNoProxy("<-loopback>")
         case "MicrosoftEdge" => proxy.setNoProxy("<-loopback>")
-        case "firefox"       => proxy.setNoProxy("<-loopback>")
+        case "firefox"       =>
+          proxy.setNoProxy("<-loopback>")
           capabilities.asInstanceOf[FirefoxOptions].addPreference("network.proxy.allow_hijacking_localhost", true)
       }
 
