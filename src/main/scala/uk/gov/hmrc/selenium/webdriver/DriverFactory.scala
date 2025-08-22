@@ -63,7 +63,7 @@ class DriverFactory extends LazyLogging {
     )
     options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: " + println(options))
+    logger.debug(s"Browser options set: $options")
     options
   }
 
@@ -81,7 +81,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: " + println(options))
+    logger.debug(s"Browser options set: $options")
     options
   }
 
@@ -99,7 +99,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: " + println(options))
+    logger.debug(s"Browser options set: $options")
     options
   }
 
