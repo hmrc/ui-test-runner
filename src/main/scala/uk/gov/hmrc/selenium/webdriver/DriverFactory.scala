@@ -63,7 +63,7 @@ class DriverFactory extends LazyLogging {
     )
     options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
-
+    logger.debug(s"Browser options set: ${options.asMap()}")
     options
   }
 
@@ -73,6 +73,7 @@ class DriverFactory extends LazyLogging {
     options.setBrowserVersion(edgeBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    enableBiDi(options)
     browserLogging(options)
     accessibilityAssessment(options)
     securityAssessment(options)
@@ -80,7 +81,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-
+    logger.debug(s"Browser options set: ${options.asMap()}")
     options
   }
 
@@ -90,6 +91,7 @@ class DriverFactory extends LazyLogging {
     options.setBrowserVersion(firefoxBrowserVersion)
     logger.info(s"Browser: ${options.getBrowserName} ${options.getBrowserVersion}")
 
+    enableBiDi(options)
     browserLogging(options)
     accessibilityAssessment(options)
     securityAssessment(options)
@@ -97,7 +99,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-
+    logger.debug(s"Browser options set: ${options.asMap()}")
     options
   }
 
@@ -153,11 +155,12 @@ class DriverFactory extends LazyLogging {
         case "chrome"        => proxy.setNoProxy("<-loopback>")
         case "MicrosoftEdge" => proxy.setNoProxy("<-loopback>")
         case "firefox"       =>
-          proxy.setNoProxy("<-loopback>")
           capabilities.asInstanceOf[FirefoxOptions].addPreference("network.proxy.allow_hijacking_localhost", true)
+          capabilities.asInstanceOf[FirefoxOptions].addPreference("network.proxy.testing_localhost_is_secure_when_hijacked", true)
       }
 
       capabilities.setCapability("proxy", proxy)
+      logger.debug(s"Security assessment: Capabilites ${capabilities.asMap()}")
       logger.info(s"Security assessment: Enabled (${TestRunnerConfig.zapHost})")
     }
 
