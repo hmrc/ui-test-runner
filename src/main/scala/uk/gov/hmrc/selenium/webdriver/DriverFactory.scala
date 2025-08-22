@@ -63,7 +63,7 @@ class DriverFactory extends LazyLogging {
     )
     options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: ${options.asMap()}")
+    logger.debug(s"Browser options set: " + println(options))
     options
   }
 
@@ -81,7 +81,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: ${options.asMap()}")
+    logger.debug(s"Browser options set: " + println(options))
     options
   }
 
@@ -99,7 +99,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: ${options.asMap()}")
+    logger.debug(s"Browser options set: " + println(options))
     options
   }
 
@@ -162,7 +162,6 @@ class DriverFactory extends LazyLogging {
       }
 
       capabilities.setCapability("proxy", proxy)
-      logger.debug(s"Security assessment: Capabilites ${capabilities.asMap()}")
       logger.info(s"Security assessment: Enabled (${TestRunnerConfig.zapHost})")
     }
 
