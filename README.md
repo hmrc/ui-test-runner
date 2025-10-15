@@ -22,6 +22,8 @@ See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/
 - System property `security.assessment` is available to enable or disable the security assessment. Arguments `true` and `false` are available, the default is `false`.
 - System property `browser.option.headless` is available to enable or disable headless browser mode. Arguments `true` and `false` are available, the default is `true`.
 - System property `browser.logging` is available to enable browser console logs when using Chrome. Arguments `true` and `false` are available, the default is `false`.
+- System property `browser.bidi` is available to enable the WebSocket connection for bidirectional communication with browser. Arguments `true` and `false` are available, the default is `false`.
+- System property `browser.usePreviousVersion` is available to enable the use of previous version of Chrome (v128). Arguments `true` and `false` are available, the default is `false`.
 
 Set system properties when executing tests as follows:
 
