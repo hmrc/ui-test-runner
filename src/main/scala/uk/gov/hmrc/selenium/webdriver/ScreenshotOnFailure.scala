@@ -17,10 +17,12 @@
 package uk.gov.hmrc.selenium.webdriver
 
 import org.openqa.selenium.io.FileHandler.{copy, createDir}
+import org.openqa.selenium.logging.LogType
 import org.openqa.selenium.{OutputType, TakesScreenshot}
 import org.scalatest.{Documenting, Outcome, TestSuite, TestSuiteMixin}
 
 import java.io.File
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 trait ScreenshotOnFailure extends TestSuiteMixin with Documenting { this: TestSuite =>
 
@@ -31,6 +33,7 @@ trait ScreenshotOnFailure extends TestSuiteMixin with Documenting { this: TestSu
     val screenshotDirectory = "./target/test-reports/html-report/images/screenshots/"
 
     if (testOutcome.isExceptional) {
+      outputAllBrowserLogs()
       captureScreenshot(screenshotName, screenshotDirectory)
       markup(s"<img src='images/screenshots/$screenshotName' />")
     }
@@ -44,6 +47,24 @@ trait ScreenshotOnFailure extends TestSuiteMixin with Documenting { this: TestSu
 
     createDir(new File(screenshotDirectory))
     copy(tmpFile, screenshotFile)
+  }
+
+  private def outputAllBrowserLogs(): Unit = {
+    val logTypes = Seq(LogType.BROWSER, LogType.DRIVER, LogType.CLIENT, LogType.PERFORMANCE)
+
+    logTypes.foreach { logType =>
+      try {
+        val logs = Driver.instance.manage().logs().get(logType)
+        if (!logs.getAll.isEmpty) {
+          println(s"\n >>>>>>>>>> $logType Logs <<<<<<<<<<")
+          logs.getAll.asScala.foreach { entry =>
+            println(s"[${entry.getLevel}] ${entry.getTimestamp}: ${entry.getMessage}")
+          }
+        }
+      } catch {
+        case _: Exception => // Log type not supported by browser, skip
+      }
+    }
   }
 
 }

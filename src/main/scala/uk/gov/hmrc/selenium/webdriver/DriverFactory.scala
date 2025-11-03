@@ -106,17 +106,34 @@ class DriverFactory extends LazyLogging {
   private def browserLogging(capabilities: MutableCapabilities): MutableCapabilities = {
     val browserName = capabilities.getBrowserName
 
-    if (TestRunnerConfig.browserLoggingEnabled)
+    if (TestRunnerConfig.browserLoggingEnabled) {
       browserName match {
         case "chrome" =>
           val logPrefs = new LoggingPreferences()
+         // logPrefs.enable(LogType.BROWSER, Level.ALL)
+         // logPrefs.enable(LogType.DRIVER, Level.ALL)
+          logPrefs.enable(LogType.CLIENT, Level.ALL)
+          logPrefs.enable(LogType.PERFORMANCE, Level.ALL)
+          capabilities.setCapability("goog:loggingPrefs", logPrefs)
+          logger.info("Browser logging: Enabled (BROWSER, DRIVER, CLIENT, PERFORMANCE)")
+        case "MicrosoftEdge" =>
+          val logPrefs = new LoggingPreferences()
           logPrefs.enable(LogType.BROWSER, Level.ALL)
-          capabilities
-            .setCapability("goog:loggingPrefs", logPrefs)
-          logger.info(s"Browser logging: Enabled")
-        case _        =>
+          //logPrefs.enable(LogType.DRIVER, Level.ALL)
+         // logPrefs.enable(LogType.CLIENT, Level.ALL)
+         // logPrefs.enable(LogType.PERFORMANCE, Level.ALL)
+          capabilities.setCapability("ms:loggingPrefs", logPrefs)
+          logger.info("Browser logging: Enabled (BROWSER, DRIVER, CLIENT, PERFORMANCE)")
+        case "firefox" =>
+          val logPrefs = new LoggingPreferences()
+          logPrefs.enable(LogType.BROWSER, Level.ALL)
+          //logPrefs.enable(LogType.DRIVER, Level.ALL)
+          capabilities.setCapability("moz:firefoxOptions", Map("log" -> Map("level" -> "trace")).asJava)
+          logger.info("Browser logging: Enabled (BROWSER, DRIVER)")
+        case _ =>
           logger.warn(s"Browser logging: Not available for $browserName")
       }
+    }
 
     capabilities
   }
