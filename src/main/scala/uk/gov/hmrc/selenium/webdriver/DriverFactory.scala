@@ -63,7 +63,7 @@ class DriverFactory extends LazyLogging {
     )
     options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: $options")
+
     options
   }
 
@@ -81,7 +81,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: $options")
+
     options
   }
 
@@ -99,24 +99,74 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: $options")
+
     options
   }
 
   private def browserLogging(capabilities: MutableCapabilities): MutableCapabilities = {
     val browserName = capabilities.getBrowserName
 
-    if (TestRunnerConfig.browserLoggingEnabled)
-      browserName match {
-        case "chrome" =>
-          val logPrefs = new LoggingPreferences()
-          logPrefs.enable(LogType.BROWSER, Level.ALL)
-          capabilities
-            .setCapability("goog:loggingPrefs", logPrefs)
-          logger.info(s"Browser logging: Enabled")
-        case _        =>
-          logger.warn(s"Browser logging: Not available for $browserName")
-      }
+    val browserLogging     = sys.props.get("browser.logging").contains("true")
+    val driverLogging      = sys.props.get("driver.logging").contains("true")
+    val performanceLogging = sys.props.get("performance.logging").contains("true")
+
+    if (!browserLogging && !driverLogging && !performanceLogging) return capabilities
+
+    val logPrefs = new LoggingPreferences()
+
+    val browserLogLevel     = sys.props
+      .get("browser.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+    val driverLogLevel      = sys.props
+      .get("driver.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+    val performanceLogLevel = sys.props
+      .get("performance.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+
+    val enableBrowserLogs     = sys.props
+      .get("browser.logging")
+      .contains("true")
+    val enableDriverLogs      = sys.props
+      .get("driver.logging")
+      .contains("true")
+    val enablePerformanceLogs = sys.props
+      .get("performance.logging")
+      .contains("true")
+
+    browserName match {
+      case "chrome" =>
+        if (enableBrowserLogs) logPrefs.enable(LogType.BROWSER, browserLogLevel)
+        if (enableDriverLogs) logPrefs.enable(LogType.DRIVER, driverLogLevel)
+        if (enablePerformanceLogs) logPrefs.enable(LogType.PERFORMANCE, performanceLogLevel)
+        capabilities.setCapability("goog:loggingPrefs", logPrefs)
+        logger.info(
+          s"Browser logging (Chrome): browser=$enableBrowserLogs($browserLogLevel), driver=$enableDriverLogs($driverLogLevel), performance=$enablePerformanceLogs($performanceLogLevel)"
+        )
+
+      case "MicrosoftEdge" =>
+        if (enableBrowserLogs) logPrefs.enable(LogType.BROWSER, browserLogLevel)
+        if (enableDriverLogs) logPrefs.enable(LogType.DRIVER, driverLogLevel)
+        if (enablePerformanceLogs) logPrefs.enable(LogType.PERFORMANCE, performanceLogLevel)
+        capabilities.setCapability("ms:loggingPrefs", logPrefs)
+        logger.info(
+          s"Browser logging (Edge): browser=$enableBrowserLogs($browserLogLevel), driver=$enableDriverLogs($driverLogLevel), performance=$enablePerformanceLogs($performanceLogLevel)"
+        )
+
+      case "firefox" =>
+        if (enableBrowserLogs) logPrefs.enable(LogType.BROWSER, browserLogLevel)
+        capabilities.setCapability(
+          "moz:firefoxOptions",
+          Map("log" -> Map("level" -> browserLogLevel.toString.toLowerCase).asJava).asJava
+        )
+        logger.info(s"Browser logging (Firefox): browser=$enableBrowserLogs($browserLogLevel)")
+
+      case _ =>
+        logger.warn(s"Browser logging: Not configured for $browserName")
+    }
 
     capabilities
   }
@@ -143,6 +193,23 @@ class DriverFactory extends LazyLogging {
     capabilities
   }
 
+  private def enableBiDi(capabilities: MutableCapabilities): MutableCapabilities = {
+    if (!TestRunnerConfig.biDiEnabled) {
+      logger.info("BiDi not enabled via config.")
+      return capabilities
+    }
+
+    val browser = capabilities.getBrowserName.toLowerCase
+
+    // enables the WebSocket connection for bidirectional communication
+    // https://www.selenium.dev/documentation/webdriver/bidi/
+    capabilities.setCapability("webSocketUrl", true)
+    logger.info(s"BiDi enabled for $browser (webSocketUrl=true).")
+    logger.debug(s"Capabilities after BiDi config: ${capabilities.asMap()}")
+
+    capabilities
+  }
+
   private def securityAssessment(capabilities: MutableCapabilities): MutableCapabilities = {
     val browserName = capabilities.getBrowserName
     val proxy       = new Proxy()
@@ -156,9 +223,6 @@ class DriverFactory extends LazyLogging {
         case "MicrosoftEdge" => proxy.setNoProxy("<-loopback>")
         case "firefox"       =>
           capabilities.asInstanceOf[FirefoxOptions].addPreference("network.proxy.allow_hijacking_localhost", true)
-          capabilities
-            .asInstanceOf[FirefoxOptions]
-            .addPreference("network.proxy.testing_localhost_is_secure_when_hijacked", true)
       }
 
       capabilities.setCapability("proxy", proxy)
@@ -186,23 +250,6 @@ class DriverFactory extends LazyLogging {
 
       logger.info("Browser option (headless): Enabled")
     }
-
-    capabilities
-  }
-
-  private def enableBiDi(capabilities: MutableCapabilities): MutableCapabilities = {
-    if (!TestRunnerConfig.biDiEnabled) {
-      logger.info("BiDi not enabled via config.")
-      return capabilities
-    }
-
-    val browser = capabilities.getBrowserName.toLowerCase
-
-    // enables the WebSocket connection for bidirectional communication
-    // https://www.selenium.dev/documentation/webdriver/bidi/
-    capabilities.setCapability("webSocketUrl", true)
-    logger.info(s"BiDi enabled for $browser (webSocketUrl=true).")
-    logger.debug(s"Capabilities after BiDi config: ${capabilities.asMap()}")
 
     capabilities
   }

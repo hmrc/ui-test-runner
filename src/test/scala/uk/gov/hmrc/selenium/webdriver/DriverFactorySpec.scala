@@ -24,7 +24,9 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import java.util
 import java.util.Base64
+import scala.jdk.CollectionConverters._
 
 class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
@@ -50,10 +52,29 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
       options.asMap().get("browserName")         shouldBe "chrome"
       options.asMap().get("acceptInsecureCerts") shouldBe true
-      options
-        .asMap()
-        .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+
+      val chromeOptions: util.Map[String, Object] =
+        options.asMap().get("goog:chromeOptions").asInstanceOf[java.util.Map[String, Object]]
+
+      val args: List[String] = chromeOptions.get("args").asInstanceOf[java.util.List[String]].asScala.toList
+
+      args should contain allOf (
+        "--headless=new",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-search-engine-choice-screen"
+      )
+      args should contain(
+        "--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints"
+      )
+      args should contain("--disable-features=MediaRouter")
+
+      val extensions: util.List[String] = chromeOptions.get("extensions").asInstanceOf[java.util.List[String]]
+      extensions          should have size 1
+      extensions.get(0) shouldBe accessibilityAssessmentExtension
+
+      val prefs: util.Map[String, String] = chromeOptions.get("prefs").asInstanceOf[java.util.Map[String, String]]
+      prefs.get("download.default_directory") shouldBe downloadDirectory
     }
 
     "return Chrome options when accessibility assessment is disabled" in new Setup {
@@ -100,6 +121,8 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
 
     "return no Chrome logging preferences when browser logging is disabled" in new Setup {
       System.setProperty("browser.logging", "false")
+      System.setProperty("driver.logging", "false")
+      System.setProperty("performance.logging", "false")
       ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
@@ -123,7 +146,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "set BiDi capability when enabled in config for Chrome" in new Setup {
-      System.setProperty("browser.bidi", "true")
+      System.setProperty("bidi", "true")
       ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
@@ -132,7 +155,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "not set BiDi capability when disabled in config for Chrome" in new Setup {
-      System.setProperty("browser.bidi", "false")
+      System.setProperty("bidi", "false")
       ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
@@ -194,8 +217,8 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
         .toString                                shouldBe s"{args=[], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
-    "set BiDi capability when enabled in config for edge" in new Setup {
-      System.setProperty("browser.bidi", "true")
+    "set BiDi capability when enabled in config for Edge" in new Setup {
+      System.setProperty("bidi", "true")
       ConfigFactory.invalidateCaches()
 
       val options: EdgeOptions = driverFactory.edgeOptions()
@@ -203,8 +226,8 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options.asMap().get("webSocketUrl") shouldBe true
     }
 
-    "not set BiDi capability when disabled in config for edge" in new Setup {
-      System.setProperty("browser.bidi", "false")
+    "not set BiDi capability when disabled in config for Edge" in new Setup {
+      System.setProperty("bidi", "false")
       ConfigFactory.invalidateCaches()
 
       val options: EdgeOptions = driverFactory.edgeOptions()
@@ -234,7 +257,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("moz:firefoxOptions")
-        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true, network.proxy.testing_localhost_is_secure_when_hijacked=true, remote.active-protocols=1}}"
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true, remote.active-protocols=1}}"
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
     }
 
@@ -253,7 +276,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "set BiDi capability when enabled in config for Firefox" in new Setup {
-      System.setProperty("browser.bidi", "true")
+      System.setProperty("bidi", "true")
       ConfigFactory.invalidateCaches()
 
       val options: FirefoxOptions = driverFactory.firefoxOptions()
@@ -261,13 +284,14 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options.asMap().get("webSocketUrl") shouldBe true
     }
 
-    "not set BiDi capability when disabled in config for Firefox" in new Setup {
-      System.setProperty("browser.bidi", "false")
+    "not set BiDi capability for Firefox regardless of config" in new Setup {
+      System.setProperty("bidi", "false")
       ConfigFactory.invalidateCaches()
 
       val options: FirefoxOptions = driverFactory.firefoxOptions()
 
       Option(options.asMap().get("webSocketUrl")) shouldBe None
     }
+
   }
 }

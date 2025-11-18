@@ -17,14 +17,13 @@
 package uk.gov.hmrc.selenium.webdriver
 
 import com.typesafe.scalalogging.LazyLogging
-import org.openqa.selenium.logging.{LogEntries, LogType}
-import org.openqa.selenium.remote.RemoteWebDriver
 import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.util.concurrent.TimeUnit
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 trait Browser extends LazyLogging {
+
+  private val collectedDrivers = scala.collection.mutable.Set[String]()
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
@@ -46,15 +45,28 @@ trait Browser extends LazyLogging {
       Driver.instance.quit()
     }
 
-  private def outputBrowserLogs(): Unit =
-    if (TestRunnerConfig.browserLoggingEnabled) {
-      val capabilities = Driver.instance.asInstanceOf[RemoteWebDriver].getCapabilities
-      val browserName  = capabilities.getBrowserName
+  private def outputBrowserLogs(): Unit = {
 
-      if (browserName == "chrome") {
-        val logs: LogEntries = Driver.instance.manage().logs().get(LogType.BROWSER)
-        for (entry <- logs.getAll.asScala)
-          logger.info(s"${entry.getLevel} ${entry.getMessage}")
-      }
+    val driverSessionId = Driver.instance match {
+      case remote: org.openqa.selenium.remote.RemoteWebDriver =>
+        remote.getSessionId.toString
+      case _                                                  =>
+        System.identityHashCode(Driver.instance).toString
     }
+
+    if (collectedDrivers.contains(driverSessionId)) {
+      return
+    }
+
+    val browserLogsEnabled     = sys.props.get("browser.logging").contains("true")
+    val driverLogsEnabled      = sys.props.get("driver.logging").contains("true")
+    val performanceLogsEnabled = sys.props.get("performance.logging").contains("true")
+
+    val anyLoggingEnabled = browserLogsEnabled || driverLogsEnabled || performanceLogsEnabled
+
+    if (anyLoggingEnabled && BrowserLogger.isSupported(Driver.instance)) {
+      BrowserLogger.collectAndOutputLogs(Driver.instance)
+      collectedDrivers += driverSessionId
+    }
+  }
 }

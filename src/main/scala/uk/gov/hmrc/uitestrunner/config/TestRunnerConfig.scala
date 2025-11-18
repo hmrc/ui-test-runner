@@ -37,7 +37,6 @@ object TestRunnerConfig {
     configuration.getBoolean("accessibility.assessment")
 
   def accessibilityTimeout: Duration =
-    // For backward compatibility, fallback to Int definition
     scala.util
       .Try(configuration.getDuration("accessibility.timeout").toScala)
       .getOrElse(configuration.getInt("accessibility.timeout").millis)
@@ -51,21 +50,17 @@ object TestRunnerConfig {
       .get("browser")
       .map(_.toLowerCase)
 
+  def biDiEnabled: Boolean =
+    configuration.getBoolean("bidi")
+
   def browserLoggingEnabled: Boolean =
     sys.props.getOrElse("browser.logging", "false").toBoolean
-
-  def biDiEnabled: Boolean =
-    sys.props.getOrElse("browser.bidi", "false").toBoolean
 
   def browserOptionHeadLessEnabled: Boolean =
     sys.props.getOrElse("browser.option.headless", "true").toBoolean
 
   def browserChromeVersion: String =
-    if (sys.props.getOrElse("browser.usePreviousVersion", "false").toBoolean) {
-      sys.props.getOrElse("browser.version", "128")
-    } else {
-      sys.props.getOrElse("browser.version", "136")
-    }
+    sys.props.getOrElse("browser.version", "136")
 
   def browserEdgeVersion: String =
     sys.props.getOrElse("browser.version", "137")
