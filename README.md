@@ -1,6 +1,6 @@
 # ui-test-runner
 
-A helper library for UI testing at HMRC. This version is for the test ream to prep for BIDI release
+A helper library for UI testing at HMRC.
 
 ## Usage
 
@@ -9,18 +9,21 @@ A helper library for UI testing at HMRC. This version is for the test ream to pr
 Declare the library as a project dependency as follows:
 
 ```scala
-"uk.gov.hmrc" %% "ui-test-runner-platui-3896" % "x.x.x" % Test
+"uk.gov.hmrc" %% "ui-test-runner" % "x.x.x" % Test
 ```
 
 See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/project/Dependencies.scala).
 
 ### Configuration
 
-- System property `browser` must be set in order to execute tests. Arguments `chrome`, `edge` and `firefox` are available.
-- System property `environment` must be set in order to execute tests. Arguments `local`, `dev`, `qa` and `staging` are typically available, but will depend on your project configuration. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
+- System property `browser` must be set to execute tests. Arguments `chrome`, `edge` and `firefox` are available.
+- System property `environment` must be set to execute tests. Arguments `local`, `dev`, `qa` and `staging` are typically available, but will depend on your project configuration. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
 - System property `accessibility.assessment` is available to enable or disable the accessibility assessment. Arguments `true` and `false` are available, the default is `true`.
 - System property `security.assessment` is available to enable or disable the security assessment. Arguments `true` and `false` are available, the default is `false`.
 - System property `browser.option.headless` is available to enable or disable headless browser mode. Arguments `true` and `false` are available, the default is `true`.
+- System property `browser.logging` is available to enable browser console logs when using Chrome. Arguments `true` and `false` are available, the default is `false`.
+- System property `browser.bidi` is available to enable the WebSocket connection for bidirectional communication with browser. Arguments `true` and `false` are available, the default is `false`.
+- System property `browser.usePreviousVersion` is available to enable the use of previous version of Chrome (v128). Arguments `true` and `false` are available, the default is `false`.
 
 #### Browser Logging
 

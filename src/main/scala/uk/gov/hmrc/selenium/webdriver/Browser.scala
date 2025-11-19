@@ -58,13 +58,7 @@ trait Browser extends LazyLogging {
       return
     }
 
-    val browserLogsEnabled     = sys.props.get("browser.logging").contains("true")
-    val driverLogsEnabled      = sys.props.get("driver.logging").contains("true")
-    val performanceLogsEnabled = sys.props.get("performance.logging").contains("true")
-
-    val anyLoggingEnabled = browserLogsEnabled || driverLogsEnabled || performanceLogsEnabled
-
-    if (anyLoggingEnabled && BrowserLogger.isSupported(Driver.instance)) {
+    if (TestRunnerConfig.anyLoggingEnabled && BrowserLogger.isSupported(Driver.instance)) {
       BrowserLogger.collectAndOutputLogs(Driver.instance)
       collectedDrivers += driverSessionId
     }

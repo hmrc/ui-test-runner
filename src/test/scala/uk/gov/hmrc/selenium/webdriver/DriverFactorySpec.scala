@@ -39,6 +39,10 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     System.clearProperty("accessibility.assessment")
     System.clearProperty("security.assessment")
     System.clearProperty("browser.option.headless")
+    System.clearProperty("browser.logging")
+    System.clearProperty("driver.logging")
+    System.clearProperty("performance.logging")
+    System.clearProperty("browser.bidi")
     ConfigFactory.invalidateCaches()
   }
 
@@ -146,7 +150,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "set BiDi capability when enabled in config for Chrome" in new Setup {
-      System.setProperty("bidi", "true")
+      System.setProperty("browser.bidi", "true")
       ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
@@ -155,7 +159,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "not set BiDi capability when disabled in config for Chrome" in new Setup {
-      System.setProperty("bidi", "false")
+      System.setProperty("browser.bidi", "false")
       ConfigFactory.invalidateCaches()
 
       val options: ChromeOptions = driverFactory.chromeOptions()
@@ -218,7 +222,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "set BiDi capability when enabled in config for Edge" in new Setup {
-      System.setProperty("bidi", "true")
+      System.setProperty("browser.bidi", "true")
       ConfigFactory.invalidateCaches()
 
       val options: EdgeOptions = driverFactory.edgeOptions()
@@ -227,7 +231,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "not set BiDi capability when disabled in config for Edge" in new Setup {
-      System.setProperty("bidi", "false")
+      System.setProperty("browser.bidi", "false")
       ConfigFactory.invalidateCaches()
 
       val options: EdgeOptions = driverFactory.edgeOptions()
@@ -276,7 +280,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "set BiDi capability when enabled in config for Firefox" in new Setup {
-      System.setProperty("bidi", "true")
+      System.setProperty("browser.bidi", "true")
       ConfigFactory.invalidateCaches()
 
       val options: FirefoxOptions = driverFactory.firefoxOptions()
@@ -285,7 +289,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
     }
 
     "not set BiDi capability for Firefox regardless of config" in new Setup {
-      System.setProperty("bidi", "false")
+      System.setProperty("browser.bidi", "false")
       ConfigFactory.invalidateCaches()
 
       val options: FirefoxOptions = driverFactory.firefoxOptions()

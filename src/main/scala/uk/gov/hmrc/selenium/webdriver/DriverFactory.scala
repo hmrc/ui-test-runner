@@ -106,66 +106,48 @@ class DriverFactory extends LazyLogging {
   private def browserLogging(capabilities: MutableCapabilities): MutableCapabilities = {
     val browserName = capabilities.getBrowserName
 
-    val browserLogging     = sys.props.get("browser.logging").contains("true")
-    val driverLogging      = sys.props.get("driver.logging").contains("true")
-    val performanceLogging = sys.props.get("performance.logging").contains("true")
-
-    if (!browserLogging && !driverLogging && !performanceLogging) return capabilities
+    if (!TestRunnerConfig.anyLoggingEnabled) return capabilities
 
     val logPrefs = new LoggingPreferences()
 
-    val browserLogLevel     = sys.props
-      .get("browser.logging.level")
-      .map(Level.parse)
-      .getOrElse(Level.ALL)
-    val driverLogLevel      = sys.props
-      .get("driver.logging.level")
-      .map(Level.parse)
-      .getOrElse(Level.ALL)
-    val performanceLogLevel = sys.props
-      .get("performance.logging.level")
-      .map(Level.parse)
-      .getOrElse(Level.ALL)
-
-    val enableBrowserLogs     = sys.props
-      .get("browser.logging")
-      .contains("true")
-    val enableDriverLogs      = sys.props
-      .get("driver.logging")
-      .contains("true")
-    val enablePerformanceLogs = sys.props
-      .get("performance.logging")
-      .contains("true")
-
     browserName match {
       case "chrome" =>
-        if (enableBrowserLogs) logPrefs.enable(LogType.BROWSER, browserLogLevel)
-        if (enableDriverLogs) logPrefs.enable(LogType.DRIVER, driverLogLevel)
-        if (enablePerformanceLogs) logPrefs.enable(LogType.PERFORMANCE, performanceLogLevel)
+        if (TestRunnerConfig.browserLoggingEnabled)
+          logPrefs.enable(LogType.BROWSER, TestRunnerConfig.browserLoggingLevel)
+        if (TestRunnerConfig.driverLoggingEnabled)
+          logPrefs.enable(LogType.DRIVER, TestRunnerConfig.driverLoggingLevel)
+        if (TestRunnerConfig.performanceLoggingEnabled)
+          logPrefs.enable(LogType.PERFORMANCE, TestRunnerConfig.performanceLoggingLevel)
         capabilities.setCapability("goog:loggingPrefs", logPrefs)
         logger.info(
-          s"Browser logging (Chrome): browser=$enableBrowserLogs($browserLogLevel), driver=$enableDriverLogs($driverLogLevel), performance=$enablePerformanceLogs($performanceLogLevel)"
+          s"Browser logging (Chrome): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
         )
 
       case "MicrosoftEdge" =>
-        if (enableBrowserLogs) logPrefs.enable(LogType.BROWSER, browserLogLevel)
-        if (enableDriverLogs) logPrefs.enable(LogType.DRIVER, driverLogLevel)
-        if (enablePerformanceLogs) logPrefs.enable(LogType.PERFORMANCE, performanceLogLevel)
+        if (TestRunnerConfig.browserLoggingEnabled)
+          logPrefs.enable(LogType.BROWSER, TestRunnerConfig.browserLoggingLevel)
+        if (TestRunnerConfig.driverLoggingEnabled)
+          logPrefs.enable(LogType.DRIVER, TestRunnerConfig.driverLoggingLevel)
+        if (TestRunnerConfig.performanceLoggingEnabled)
+          logPrefs.enable(LogType.PERFORMANCE, TestRunnerConfig.performanceLoggingLevel)
         capabilities.setCapability("ms:loggingPrefs", logPrefs)
         logger.info(
-          s"Browser logging (Edge): browser=$enableBrowserLogs($browserLogLevel), driver=$enableDriverLogs($driverLogLevel), performance=$enablePerformanceLogs($performanceLogLevel)"
+          s"Browser logging (Edge): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
         )
 
       case "firefox" =>
-        if (enableBrowserLogs) logPrefs.enable(LogType.BROWSER, browserLogLevel)
+        if (TestRunnerConfig.browserLoggingEnabled)
+          logPrefs.enable(LogType.BROWSER, TestRunnerConfig.browserLoggingLevel)
         capabilities.setCapability(
           "moz:firefoxOptions",
-          Map("log" -> Map("level" -> browserLogLevel.toString.toLowerCase).asJava).asJava
+          Map("log" -> Map("level" -> TestRunnerConfig.browserLoggingLevel.toString.toLowerCase).asJava).asJava
         )
-        logger.info(s"Browser logging (Firefox): browser=$enableBrowserLogs($browserLogLevel)")
+        logger.info(
+          s"Browser logging (Firefox): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel})"
+        )
 
       case _ =>
-        logger.warn(s"Browser logging: Not configured for $browserName")
+        logger.warn(s"Browser logging: Not supported for $browserName")
     }
 
     capabilities

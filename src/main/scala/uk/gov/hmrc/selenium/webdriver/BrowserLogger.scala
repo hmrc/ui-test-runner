@@ -20,6 +20,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.logging.{LogEntries, LogEntry, LogType}
 import org.openqa.selenium.remote.RemoteWebDriver
+import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.io.{File, FileWriter, PrintWriter}
 import java.time.Instant
@@ -65,15 +66,15 @@ object BrowserLogger extends LazyLogging {
 
           val allLogs = scala.collection.mutable.Map[String, List[LogEntry]]()
 
-          if (shouldCollectBrowserLogs && availableLogTypes.contains(LogType.BROWSER)) {
+          if (TestRunnerConfig.browserLoggingEnabled && availableLogTypes.contains(LogType.BROWSER)) {
             collectLogType(logs, LogType.BROWSER, allLogs)
           }
 
-          if (shouldCollectDriverLogs && availableLogTypes.contains(LogType.DRIVER)) {
+          if (TestRunnerConfig.driverLoggingEnabled && availableLogTypes.contains(LogType.DRIVER)) {
             collectLogType(logs, LogType.DRIVER, allLogs)
           }
 
-          if (shouldCollectPerformanceLogs && availableLogTypes.contains(LogType.PERFORMANCE)) {
+          if (TestRunnerConfig.performanceLoggingEnabled && availableLogTypes.contains(LogType.PERFORMANCE)) {
             collectLogType(logs, LogType.PERFORMANCE, allLogs)
           }
 
@@ -91,15 +92,6 @@ object BrowserLogger extends LazyLogging {
     }.recover { case e: Exception =>
       logger.error(s"Error collecting browser logs: ${e.getMessage}")
     }
-
-  private def shouldCollectBrowserLogs: Boolean =
-    sys.props.get("browser.logging").contains("true")
-
-  private def shouldCollectDriverLogs: Boolean =
-    sys.props.get("driver.logging").contains("true")
-
-  private def shouldCollectPerformanceLogs: Boolean =
-    sys.props.get("performance.logging").contains("true")
 
   private def collectLogType(
     logs: org.openqa.selenium.logging.Logs,

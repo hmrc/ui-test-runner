@@ -18,6 +18,7 @@ package uk.gov.hmrc.uitestrunner.config
 
 import com.typesafe.config.{Config, ConfigFactory}
 
+import java.util.logging.Level
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.jdk.DurationConverters._
 
@@ -51,20 +52,51 @@ object TestRunnerConfig {
       .map(_.toLowerCase)
 
   def biDiEnabled: Boolean =
-    configuration.getBoolean("bidi")
-
-  def browserLoggingEnabled: Boolean =
-    sys.props.getOrElse("browser.logging", "false").toBoolean
+    sys.props.getOrElse("browser.bidi", "false").toBoolean
 
   def browserOptionHeadLessEnabled: Boolean =
     sys.props.getOrElse("browser.option.headless", "true").toBoolean
 
   def browserChromeVersion: String =
-    sys.props.getOrElse("browser.version", "136")
+    if (sys.props.getOrElse("browser.usePreviousVersion", "false").toBoolean) {
+      sys.props.getOrElse("browser.version", "128")
+    } else {
+      sys.props.getOrElse("browser.version", "136")
+    }
 
   def browserEdgeVersion: String =
     sys.props.getOrElse("browser.version", "137")
 
   def browserFirefoxVersion: String =
     sys.props.getOrElse("browser.version", "136")
+
+  def browserLoggingEnabled: Boolean =
+    sys.props.get("browser.logging").contains("true")
+
+  def driverLoggingEnabled: Boolean =
+    sys.props.get("driver.logging").contains("true")
+
+  def performanceLoggingEnabled: Boolean =
+    sys.props.get("performance.logging").contains("true")
+
+  def browserLoggingLevel: Level =
+    sys.props
+      .get("browser.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+
+  def driverLoggingLevel: Level =
+    sys.props
+      .get("driver.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+
+  def performanceLoggingLevel: Level =
+    sys.props
+      .get("performance.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+
+  def anyLoggingEnabled: Boolean =
+    browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled
 }
