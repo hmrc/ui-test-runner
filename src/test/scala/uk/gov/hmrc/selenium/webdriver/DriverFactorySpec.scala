@@ -261,7 +261,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("moz:firefoxOptions")
-        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true, remote.active-protocols=1}}"
+        .toString                                shouldBe s"{args=[-headless], prefs={browser.download.dir=$downloadDirectory, browser.download.folderList=2, network.proxy.allow_hijacking_localhost=true, network.proxy.testing_localhost_is_secure_when_hijacked=true, remote.active-protocols=1}}"
       options.asMap().get("proxy").toString      shouldBe "Proxy(manual, http=localhost:11000, ssl=localhost:11000)"
     }
 

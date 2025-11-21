@@ -45,7 +45,7 @@ Valid log levels: `ALL`, `INFO`, `WARNING`, `SEVERE`
 
 `Chrome`, `Microsft Edge` fully supported `Browser`, `Driver` and `Performance` logs
 
-`Firefox` partially supported `Browser` and `Driver` logs while `Performance` logs are not supported
+`Firefox` does not supported `Browser`, `Driver` and `Performance` logs. It only supports `Server` log which is not useful for test debugging.
 
 
 **Log Output:**

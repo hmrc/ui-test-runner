@@ -136,15 +136,7 @@ class DriverFactory extends LazyLogging {
         )
 
       case "firefox" =>
-        if (TestRunnerConfig.browserLoggingEnabled)
-          logPrefs.enable(LogType.BROWSER, TestRunnerConfig.browserLoggingLevel)
-        capabilities.setCapability(
-          "moz:firefoxOptions",
-          Map("log" -> Map("level" -> TestRunnerConfig.browserLoggingLevel.toString.toLowerCase).asJava).asJava
-        )
-        logger.info(
-          s"Browser logging (Firefox): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel})"
-        )
+        logger.warn("Browser logging: Not supported for Firefox")
 
       case _ =>
         logger.warn(s"Browser logging: Not supported for $browserName")
