@@ -17,7 +17,7 @@ See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/mai
 ### Configuration
 
 - System property `browser` must be set to execute tests. Arguments `chrome`, `edge` and `firefox` are available.
-- System property `environment` must be set to execute tests. Arguments `local`, `dev`, `qa` and `staging` are typically available, but will depend on your project configuration. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
+- System property `environment` must be set to execute tests. Arguments `local`, `dev`, `qa` and `staging` are typically available, but will depend on your project configuration. See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/resources/application.conf).
 - System property `accessibility.assessment` is available to enable or disable the accessibility assessment. Arguments `true` and `false` are available, the default is `true`.
 - System property `security.assessment` is available to enable or disable the security assessment. Arguments `true` and `false` are available, the default is `false`.
 - System property `browser.option.headless` is available to enable or disable headless browser mode. Arguments `true` and `false` are available, the default is `true`.
@@ -59,6 +59,7 @@ Set system properties when executing tests as follows:
 ```sbt
 sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Daccessibility.assessment="<accessibility.asessment>" -Dsecurity.assessment="<security.asessment>" -Dbrowser.option.headless=<browser.option.headless> "testOnly uk.gov.hmrc.ui.specs.*"
 ```
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/run-tests.sh).
 
 **With selective logging (only browser console):**
 
