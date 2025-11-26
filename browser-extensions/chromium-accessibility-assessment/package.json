@@ -1,6 +1,6 @@
 {
   "name": "accessibility-assessment",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Automatic accessibility checks.",
   "engines": {
     "node": "^20",
@@ -34,6 +34,11 @@
       "name": "Viv Richards",
       "email": "viv.richards@digital.hmrc.gov.uk",
       "url": "https://github.com/vivrichards600"
+    },
+    {
+      "name": "Sayo Afolabi",
+      "email": "sayo.afolabi@digital.hmrc.gov.uk",
+      "url": "https://github.com/sayochika"
     }
   ],
   "license": "Apache-2.0",
@@ -49,6 +54,6 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "axe-core": "^4.10.2"
+    "axe-core": "^4.11.0"
   }
 }

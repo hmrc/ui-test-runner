@@ -1,6 +1,6 @@
 {
   "name": "Accessibility Assessment",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Automatic accessibility checks.",
   "manifest_version": 3,
   "background": {
