@@ -71,13 +71,13 @@ object TestRunnerConfig {
     sys.props.getOrElse("browser.version", "136")
 
   def browserLoggingEnabled: Boolean =
-    sys.props.getOrElse("browser.logging", "false") == "true"
+    sys.props.getOrElse("browser.logging", "false").toBoolean
 
   def driverLoggingEnabled: Boolean =
-    sys.props.getOrElse("driver.logging", "false") == "true"
+    sys.props.getOrElse("driver.logging", "false").toBoolean
 
   def performanceLoggingEnabled: Boolean =
-    sys.props.getOrElse("performance.logging", "false") == "true"
+    sys.props.getOrElse("performance.logging", "false").toBoolean
 
   def browserLoggingLevel: Level =
     sys.props

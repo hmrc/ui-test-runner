@@ -27,7 +27,6 @@ import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
-import java.util.logging.Level
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
