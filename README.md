@@ -158,7 +158,7 @@ Create a url from a configuration file as follows:
 val url: String = TestEnvironment.url("service") + "/path"
 ```
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/VATReturnPeriod.scala).
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/RequestAPet.scala).
 
 ## Development
 
