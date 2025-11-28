@@ -54,7 +54,7 @@ Logs are saved to files in `target/test-reports/browser-logs/` with minimal cons
 
 Set system properties when executing tests as follows:
 
-**Default (all logging enabled):**
+**Default (all logging disabled):**
 
 ```sbt
 sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Daccessibility.assessment="<accessibility.asessment>" -Dsecurity.assessment="<security.asessment>" -Dbrowser.option.headless=<browser.option.headless> "testOnly uk.gov.hmrc.ui.specs.*"
@@ -64,43 +64,14 @@ See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/mai
 **With selective logging (only browser console):**
 
 ```sbt
-sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Ddriver.logging=false -Dperformance.logging=false "testOnly uk.gov.hmrc.ui.specs.*"
+sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=true "testOnly uk.gov.hmrc.ui.specs.*"
 ```
 
 **With custom log levels:**
 
 ```sbt
-sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging.level=INFO -Ddriver.logging.level=WARNING "testOnly uk.gov.hmrc.ui.specs.*"
+sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=true -Dbrowser.logging.level=INFO "testOnly uk.gov.hmrc.ui.specs.*"
 ```
-
-**Disable all logging:**
-
-```sbt
-sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=false -Ddriver.logging=false -Dperformance.logging=false "testOnly uk.gov.hmrc.ui.specs.*"
-```
-
-**Common Use Cases:**
-
-1. **Default behaviour** (all logging enabled at ALL level):
-   ```bash
-   sbt -Dbrowser=chrome -Denvironment=local test
-   ```
-
-2. **Only browser console logs** (for JavaScript debugging):
-   ```bash
-   sbt -Dbrowser=chrome -Denvironment=local -Ddriver.logging=false -Dperformance.logging=false test
-   ```
-
-3. **Only WebDriver commands** (for element location debugging):
-   ```bash
-   sbt -Dbrowser=chrome -Denvironment=local -Dbrowser.logging=false -Dperformance.logging=false test
-   ```
-
-4. **Custom log levels** (reduce verbosity):
-   ```bash
-   sbt -Dbrowser=chrome -Denvironment=local -Dbrowser.logging.level=WARNING test
-   ```
-
 
 ### Browser
 
