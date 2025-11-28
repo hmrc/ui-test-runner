@@ -43,9 +43,9 @@ Valid log levels: `ALL`, `INFO`, `WARNING`, `SEVERE`
 
 **Browser Support:**
 
-`Chrome`, `Microsft Edge` fully supported `Browser`, `Driver` and `Performance` logs
+`Chrome` and `Microsoft Edge` fully support `Browser`, `Driver` and `Performance` logs
 
-`Firefox` does not supported `Browser`, `Driver` and `Performance` logs. It only supports `Server` log which is not useful for test debugging.
+`Firefox` does not support `Browser`, `Driver` and `Performance` logs. It only supports `Server` log which is not useful for test debugging.
 
 
 **Log Output:**
@@ -81,7 +81,7 @@ sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=false 
 
 **Common Use Cases:**
 
-1. **Default behavior** (all logging enabled at ALL level):
+1. **Default behaviour** (all logging enabled at ALL level):
    ```bash
    sbt -Dbrowser=chrome -Denvironment=local test
    ```
