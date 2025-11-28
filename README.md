@@ -12,12 +12,12 @@ Declare the library as a project dependency as follows:
 "uk.gov.hmrc" %% "ui-test-runner" % "x.x.x" % Test
 ```
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/project/Dependencies.scala).
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/project/Dependencies.scala).
 
 ### Configuration
 
 - System property `browser` must be set in order to execute tests. Arguments `chrome`, `edge` and `firefox` are available.
-- System property `environment` must be set in order to execute tests. Arguments `local`, `dev`, `qa` and `staging` are typically available, but will depend on your project configuration. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
+- System property `environment` must be set in order to execute tests. Arguments `local`, `dev`, `qa` and `staging` are typically available, but will depend on your project configuration. See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/resources/application.conf).
 - System property `accessibility.assessment` is available to enable or disable the accessibility assessment. Arguments `true` and `false` are available, the default is `true`.
 - System property `security.assessment` is available to enable or disable the security assessment. Arguments `true` and `false` are available, the default is `false`.
 - System property `browser.option.headless` is available to enable or disable headless browser mode. Arguments `true` and `false` are available, the default is `true`.
@@ -25,13 +25,53 @@ See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/
 - System property `browser.bidi` is available to enable the WebSocket connection for bidirectional communication with browser. Arguments `true` and `false` are available, the default is `false`.
 - System property `browser.usePreviousVersion` is available to enable the use of previous version of Chrome (v128). Arguments `true` and `false` are available, the default is `false`.
 
+#### Browser Logging
+
+Browser logging is **disabled by default** for all log types. You can selectively enable or configure specific log types using system properties.
+
+**Enable/Disable Properties:**
+- `browser.logging` - Browser console logs (default: `false`)
+- `driver.logging` - WebDriver command logs (default: `false`)
+- `performance.logging` - Network/performance logs (default: `false`)
+
+**Log Level Properties:**
+- `browser.logging.level` - Browser log level (default: `ALL`)
+- `driver.logging.level` - Driver log level (default: `ALL`)
+- `performance.logging.level` - Performance log level (default: `ALL`)
+
+Valid log levels: `ALL`, `INFO`, `WARNING`, `SEVERE`
+
+**Browser Support:**
+
+`Chrome` and `Microsoft Edge` fully support `Browser`, `Driver` and `Performance` logs
+
+`Firefox` does not support `Browser`, `Driver` and `Performance` logs. It only supports `Server` log which is not useful for test debugging.
+
+
+**Log Output:**
+
+Logs are saved to files in `target/test-reports/browser-logs/` with minimal console output showing only the file path.
+
 Set system properties when executing tests as follows:
+
+**Default (all logging disabled):**
 
 ```sbt
 sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Daccessibility.assessment="<accessibility.asessment>" -Dsecurity.assessment="<security.asessment>" -Dbrowser.option.headless=<browser.option.headless> "testOnly uk.gov.hmrc.ui.specs.*"
 ```
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/run-tests.sh).
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/run-tests.sh).
+**With selective logging (only browser console):**
+
+```sbt
+sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=true "testOnly uk.gov.hmrc.ui.specs.*"
+```
+
+**With custom log levels:**
+
+```sbt
+sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=true -Dbrowser.logging.level=INFO "testOnly uk.gov.hmrc.ui.specs.*"
+```
 
 ### Browser
 
@@ -43,7 +83,7 @@ Start a new browser session as follows:
 startBrowser()
 ```
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
 
 #### Stop
 
@@ -53,7 +93,7 @@ Stop an existing browser session as follows:
 quitBrowser()
 ```
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
 
 #### Driver instance
 
@@ -63,7 +103,7 @@ Starting a new browser session returns an instance of RemoteWebDriver as an obje
 Driver.instance.<command>
 ```
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/BasePage.scala).
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/BasePage.scala).
 
 #### Download directory
 
@@ -77,11 +117,11 @@ Enable screenshot on failure with `ScreenshotOnFailure` trait as follows:
 with ScreenshotOnFailure
 ```
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/specs/BaseSpec.scala).
 
 ### Test environment configuration
 
-Test environment configuration is available. A configuration file is required to use it. See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/resources/application.conf).
+Test environment configuration is available. A configuration file is required to use it. See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/resources/application.conf).
 
 Create a url from a configuration file as follows:
 
@@ -89,7 +129,7 @@ Create a url from a configuration file as follows:
 val url: String = TestEnvironment.url("service") + "/path"
 ```
 
-See an [example](https://github.com/hmrc/platform-test-example-ui-journey-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/VATReturnPeriod.scala).
+See an [example](https://github.com/hmrc/platform-test-example-ui-tests/blob/main/src/test/scala/uk/gov/hmrc/ui/pages/RequestAPet.scala).
 
 ## Development
 
@@ -124,3 +164,4 @@ sbt scalafmtAll
 ## License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
+

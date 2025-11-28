@@ -18,6 +18,7 @@ package uk.gov.hmrc.uitestrunner.config
 
 import com.typesafe.config.{Config, ConfigFactory}
 
+import java.util.logging.Level
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.jdk.DurationConverters._
 
@@ -37,7 +38,6 @@ object TestRunnerConfig {
     configuration.getBoolean("accessibility.assessment")
 
   def accessibilityTimeout: Duration =
-    // For backward compatibility, fallback to Int definition
     scala.util
       .Try(configuration.getDuration("accessibility.timeout").toScala)
       .getOrElse(configuration.getInt("accessibility.timeout").millis)
@@ -50,9 +50,6 @@ object TestRunnerConfig {
     sys.props
       .get("browser")
       .map(_.toLowerCase)
-
-  def browserLoggingEnabled: Boolean =
-    sys.props.getOrElse("browser.logging", "false").toBoolean
 
   def biDiEnabled: Boolean =
     sys.props.getOrElse("browser.bidi", "false").toBoolean
@@ -72,4 +69,34 @@ object TestRunnerConfig {
 
   def browserFirefoxVersion: String =
     sys.props.getOrElse("browser.version", "136")
+
+  def browserLoggingEnabled: Boolean =
+    sys.props.getOrElse("browser.logging", "false").toBoolean
+
+  def driverLoggingEnabled: Boolean =
+    sys.props.getOrElse("driver.logging", "false").toBoolean
+
+  def performanceLoggingEnabled: Boolean =
+    sys.props.getOrElse("performance.logging", "false").toBoolean
+
+  def browserLoggingLevel: Level =
+    sys.props
+      .get("browser.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+
+  def driverLoggingLevel: Level =
+    sys.props
+      .get("driver.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+
+  def performanceLoggingLevel: Level =
+    sys.props
+      .get("performance.logging.level")
+      .map(Level.parse)
+      .getOrElse(Level.ALL)
+
+  def anyLoggingEnabled: Boolean =
+    browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled
 }
