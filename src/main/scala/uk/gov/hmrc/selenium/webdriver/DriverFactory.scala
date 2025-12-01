@@ -27,7 +27,6 @@ import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
-import java.util.logging.Level
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 class DriverFactory extends LazyLogging {
@@ -63,7 +62,7 @@ class DriverFactory extends LazyLogging {
     )
     options.addArguments("--disable-features=MediaRouter")
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: $options")
+
     options
   }
 
@@ -81,7 +80,7 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: $options")
+
     options
   }
 
@@ -99,24 +98,48 @@ class DriverFactory extends LazyLogging {
     headless(options)
 
     options.setAcceptInsecureCerts(true)
-    logger.debug(s"Browser options set: $options")
+
     options
   }
 
   private def browserLogging(capabilities: MutableCapabilities): MutableCapabilities = {
     val browserName = capabilities.getBrowserName
 
-    if (TestRunnerConfig.browserLoggingEnabled)
-      browserName match {
-        case "chrome" =>
-          val logPrefs = new LoggingPreferences()
-          logPrefs.enable(LogType.BROWSER, Level.ALL)
-          capabilities
-            .setCapability("goog:loggingPrefs", logPrefs)
-          logger.info(s"Browser logging: Enabled")
-        case _        =>
-          logger.warn(s"Browser logging: Not available for $browserName")
-      }
+    if (!TestRunnerConfig.anyLoggingEnabled) return capabilities
+
+    val logPrefs = new LoggingPreferences()
+
+    browserName match {
+      case "chrome" =>
+        if (TestRunnerConfig.browserLoggingEnabled)
+          logPrefs.enable(LogType.BROWSER, TestRunnerConfig.browserLoggingLevel)
+        if (TestRunnerConfig.driverLoggingEnabled)
+          logPrefs.enable(LogType.DRIVER, TestRunnerConfig.driverLoggingLevel)
+        if (TestRunnerConfig.performanceLoggingEnabled)
+          logPrefs.enable(LogType.PERFORMANCE, TestRunnerConfig.performanceLoggingLevel)
+        capabilities.setCapability("goog:loggingPrefs", logPrefs)
+        logger.info(
+          s"Browser logging (Chrome): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
+        )
+
+      case "MicrosoftEdge" =>
+        if (TestRunnerConfig.browserLoggingEnabled)
+          logPrefs.enable(LogType.BROWSER, TestRunnerConfig.browserLoggingLevel)
+        if (TestRunnerConfig.driverLoggingEnabled)
+          logPrefs.enable(LogType.DRIVER, TestRunnerConfig.driverLoggingLevel)
+        if (TestRunnerConfig.performanceLoggingEnabled)
+          logPrefs.enable(LogType.PERFORMANCE, TestRunnerConfig.performanceLoggingLevel)
+        capabilities.setCapability("ms:loggingPrefs", logPrefs)
+        logger.info(
+          s"Browser logging (Edge): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
+        )
+
+      case "firefox" =>
+        logger.warn("Browser logging: Not supported for Firefox")
+
+      case _ =>
+        logger.warn(s"Browser logging: Not supported for $browserName")
+    }
 
     capabilities
   }
@@ -139,6 +162,23 @@ class DriverFactory extends LazyLogging {
         case _               =>
           logger.warn("Accessibility assessment: Not available for Firefox")
       }
+
+    capabilities
+  }
+
+  private def enableBiDi(capabilities: MutableCapabilities): MutableCapabilities = {
+    if (!TestRunnerConfig.biDiEnabled) {
+      logger.info("BiDi not enabled via config.")
+      return capabilities
+    }
+
+    val browser = capabilities.getBrowserName.toLowerCase
+
+    // enables the WebSocket connection for bidirectional communication
+    // https://www.selenium.dev/documentation/webdriver/bidi/
+    capabilities.setCapability("webSocketUrl", true)
+    logger.info(s"BiDi enabled for $browser (webSocketUrl=true).")
+    logger.debug(s"Capabilities after BiDi config: ${capabilities.asMap()}")
 
     capabilities
   }
@@ -186,23 +226,6 @@ class DriverFactory extends LazyLogging {
 
       logger.info("Browser option (headless): Enabled")
     }
-
-    capabilities
-  }
-
-  private def enableBiDi(capabilities: MutableCapabilities): MutableCapabilities = {
-    if (!TestRunnerConfig.biDiEnabled) {
-      logger.info("BiDi not enabled via config.")
-      return capabilities
-    }
-
-    val browser = capabilities.getBrowserName.toLowerCase
-
-    // enables the WebSocket connection for bidirectional communication
-    // https://www.selenium.dev/documentation/webdriver/bidi/
-    capabilities.setCapability("webSocketUrl", true)
-    logger.info(s"BiDi enabled for $browser (webSocketUrl=true).")
-    logger.debug(s"Capabilities after BiDi config: ${capabilities.asMap()}")
 
     capabilities
   }

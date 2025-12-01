@@ -18,7 +18,6 @@ package uk.gov.hmrc.selenium.webdriver
 
 import com.typesafe.config.ConfigFactory
 import org.openqa.selenium.chrome.ChromeDriver
-import org.openqa.selenium.edge.EdgeDriver
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
