@@ -99,4 +99,16 @@ object TestRunnerConfig {
 
   def anyLoggingEnabled: Boolean =
     browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled
+
+  def chromeBrowserMirrorUrl: Option[String] =
+    sys.props.get("browser-mirror-url").orElse(sys.env.get("SE_CHROME_MIRROR_URL"))
+
+  def chromeDriverMirrorUrl: Option[String] =
+    sys.props.get("driver-mirror-url").orElse(sys.env.get("SE_CHROMEDRIVER_MIRROR_URL"))
+
+  def firefoxBrowserMirrorUrl: Option[String] =
+    sys.props.get("browser-mirror-url").orElse(sys.env.get("SE_FIREFOX_MIRROR_URL"))
+
+  def firefoxDriverMirrorUrl: Option[String] =
+    sys.props.get("driver-mirror-url").orElse(sys.env.get("SE_GECKODRIVER_MIRROR_URL"))
 }

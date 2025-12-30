@@ -35,7 +35,8 @@ class DriverFactory extends LazyLogging {
   private val firefoxBrowserVersion = TestRunnerConfig.browserFirefoxVersion
   private val chromeBrowserVersion  = TestRunnerConfig.browserChromeVersion
 
-  def initialise(): WebDriver =
+  def initialise(): WebDriver = {
+    configureMirrorUrls()
     TestRunnerConfig.browserType match {
       case Some("chrome")  => new ChromeDriver(chromeOptions())
       case Some("edge")    => new EdgeDriver(edgeOptions())
@@ -43,6 +44,33 @@ class DriverFactory extends LazyLogging {
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
+  }
+
+  private def configureMirrorUrls(): Unit = {
+    TestRunnerConfig.browserType match {
+      case Some("chrome") =>
+        TestRunnerConfig.chromeBrowserMirrorUrl.foreach { url =>
+          System.setProperty("webdriver.chrome.driver.mirror.url", url)
+          logger.info(s"Chrome browser mirror URL configured: $url")
+        }
+        TestRunnerConfig.chromeDriverMirrorUrl.foreach { url =>
+          System.setProperty("webdriver.chrome.driver.mirror.url", url)
+          logger.info(s"Chrome browser mirror URL configured: $url")
+        }
+
+      case Some("firefox") =>
+        TestRunnerConfig.firefoxBrowserMirrorUrl.foreach { url =>
+          System.setProperty("webdriver.firefox.driver.mirror.url", url)
+          logger.info(s"Chrome browser mirror URL configured: $url")
+        }
+        TestRunnerConfig.firefoxDriverMirrorUrl.foreach { url =>
+          System.setProperty("webdriver.firefox.driver.mirror.url", url)
+          logger.info(s"Chrome browser mirror URL configured: $url")
+        }
+
+      case _ =>
+    }
+  }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions

@@ -30,6 +30,8 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
     System.clearProperty("browser.version")
     System.clearProperty("driver-mirror-url")
     System.clearProperty("browser-mirror-url")
+    System.clearProperty("webdriver.chrome.driver.mirror.url")
+    System.clearProperty("webdriver.firefox.driver.mirror.url")
     ConfigFactory.invalidateCaches()
   }
 
@@ -49,6 +51,20 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       quitBrowser()
 
       Driver.instance.asInstanceOf[ChromeDriver].getSessionId shouldBe null
+    }
+
+    "start Chrome browser with mirror URLs from system properties" in {
+      System.setProperty("browser", "chrome")
+      System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
+      System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
+      System.setProperty("browser.version", "136")
+      ConfigFactory.invalidateCaches()
+
+      startBrowser()
+
+      Driver.instance.asInstanceOf[ChromeDriver].getSessionId shouldNot be(null)
+
+      quitBrowser()
     }
 
     // commenting out for now - we want this test but it currently fails due to the following known issue:
@@ -80,6 +96,19 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       quitBrowser()
 
       Driver.instance.asInstanceOf[FirefoxDriver].getSessionId shouldBe null
+    }
+
+    "start Firefox browser with mirror URLs from system properties" in {
+      System.setProperty("browser", "firefox")
+      System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
+      System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/")
+      ConfigFactory.invalidateCaches()
+
+      startBrowser()
+
+      Driver.instance.asInstanceOf[FirefoxDriver].getSessionId shouldNot be(null)
+
+      quitBrowser()
     }
 
     "throw an exception for unknown browser" in {
