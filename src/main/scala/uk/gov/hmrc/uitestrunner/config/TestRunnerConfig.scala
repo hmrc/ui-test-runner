@@ -111,4 +111,15 @@ object TestRunnerConfig {
 
   def firefoxDriverMirrorUrl: Option[String] =
     sys.props.get("driver-mirror-url").orElse(sys.env.get("SE_GECKODRIVER_MIRROR_URL"))
+
+  def edgeBrowserMirrorUrl: Option[String] =
+    sys.props
+      .get("browser-mirror-url")
+      .orElse(sys.env.get("SE_BROWSER_MIRROR_URL"))
+
+  def edgeDriverMirrorUrl: Option[String] =
+    sys.props
+      .get("driver-mirror-url")
+      .orElse(sys.env.get("SE_MSEDGEDRIVER_MIRROR_URL"))
+
 }

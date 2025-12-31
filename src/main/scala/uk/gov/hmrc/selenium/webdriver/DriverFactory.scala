@@ -61,11 +61,20 @@ class DriverFactory extends LazyLogging {
       case Some("firefox") =>
         TestRunnerConfig.firefoxBrowserMirrorUrl.foreach { url =>
           System.setProperty("webdriver.firefox.driver.mirror.url", url)
-          logger.info(s"Chrome browser mirror URL configured: $url")
+          logger.info(s"Firefox browser mirror URL configured: $url")
         }
         TestRunnerConfig.firefoxDriverMirrorUrl.foreach { url =>
           System.setProperty("webdriver.firefox.driver.mirror.url", url)
-          logger.info(s"Chrome browser mirror URL configured: $url")
+          logger.info(s"GeckoDriver mirror URL configured: $url")
+        }
+      case Some("edge")    =>
+        TestRunnerConfig.edgeBrowserMirrorUrl.foreach { url =>
+          System.setProperty("webdriver.edge.driver.mirror.url", url)
+          logger.info(s"Edge browser mirror URL configured: $url")
+        }
+        TestRunnerConfig.edgeDriverMirrorUrl.foreach { url =>
+          System.setProperty("webdriver.msedgedriver.mirror.url", url)
+          logger.info(s"EdgeDriver mirror URL configured: $url")
         }
 
       case _ =>

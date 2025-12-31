@@ -67,10 +67,15 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       quitBrowser()
     }
 
-    // commenting out for now - we want this test but it currently fails due to the following known issue:
-    // https://github.com/MicrosoftEdge/EdgeWebDriver/issues/159
+    //     commenting out for now - we want this test but it currently fails due to the following known issue:
+    //     https://github.com/MicrosoftEdge/EdgeWebDriver/issues/159
     //    "start and quit Edge browser with default options" in {
     //      System.setProperty("browser", "edge")
+    //      System.setProperty(
+    //        "browser-mirror-url",
+    //        "https://artefacts.tax.service.gov.uk/ui/api/v1/download/contentBrowsing/edge-browser/api/products/"
+    //      )
+    //      System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/edge-driver/")
     //
     //      startBrowser()
     //
