@@ -46,7 +46,7 @@ class DriverFactory extends LazyLogging {
     }
   }
 
-  private def configureMirrorUrls(): Unit = {
+  private def configureMirrorUrls(): Unit =
     TestRunnerConfig.browserType match {
       case Some("chrome") =>
         TestRunnerConfig.chromeBrowserMirrorUrl.foreach { url =>
@@ -70,7 +70,6 @@ class DriverFactory extends LazyLogging {
 
       case _ =>
     }
-  }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
