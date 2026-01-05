@@ -1,17 +1,6 @@
 /*
  * Copyright 2023 HM Revenue & Customs
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package uk.gov.hmrc.uitestrunner.config
@@ -23,6 +12,13 @@ import scala.concurrent.duration.{Duration, DurationInt}
 import scala.jdk.DurationConverters._
 
 object TestRunnerConfig {
+
+  private val chromeBrowserMirrorUrlValue  = "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/"
+  private val chromeDriverMirrorUrlValue   = "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/"
+  private val firefoxBrowserMirrorUrlValue = "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/"
+  private val firefoxDriverMirrorUrlValue  = "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/"
+  private val edgeBrowserMirrorUrlValue    = "https://artefacts.tax.service.gov.uk/artifactory/edge-browser/"
+  private val edgeDriverMirrorUrlValue     = "https://artefacts.tax.service.gov.uk/artifactory/edge-driver/"
 
   // Everything is a `def`` so that tests can invalidate the config
   private def configuration: Config =
@@ -101,25 +97,23 @@ object TestRunnerConfig {
     browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled
 
   def chromeBrowserMirrorUrl: Option[String] =
-    sys.props.get("browser-mirror-url").orElse(sys.env.get("SE_CHROME_MIRROR_URL"))
+    if (useMirrorUrls) Some(chromeBrowserMirrorUrlValue) else None
 
   def chromeDriverMirrorUrl: Option[String] =
-    sys.props.get("driver-mirror-url").orElse(sys.env.get("SE_CHROMEDRIVER_MIRROR_URL"))
+    if (useMirrorUrls) Some(chromeDriverMirrorUrlValue) else None
 
   def firefoxBrowserMirrorUrl: Option[String] =
-    sys.props.get("browser-mirror-url").orElse(sys.env.get("SE_FIREFOX_MIRROR_URL"))
+    if (useMirrorUrls) Some(firefoxBrowserMirrorUrlValue) else None
 
   def firefoxDriverMirrorUrl: Option[String] =
-    sys.props.get("driver-mirror-url").orElse(sys.env.get("SE_GECKODRIVER_MIRROR_URL"))
+    if (useMirrorUrls) Some(firefoxDriverMirrorUrlValue) else None
 
   def edgeBrowserMirrorUrl: Option[String] =
-    sys.props
-      .get("browser-mirror-url")
-      .orElse(sys.env.get("SE_BROWSER_MIRROR_URL"))
+    if (useMirrorUrls) Some(edgeBrowserMirrorUrlValue) else None
 
   def edgeDriverMirrorUrl: Option[String] =
-    sys.props
-      .get("driver-mirror-url")
-      .orElse(sys.env.get("SE_MSEDGEDRIVER_MIRROR_URL"))
+    if (useMirrorUrls) Some(edgeDriverMirrorUrlValue) else None
 
+  def useMirrorUrls: Boolean =
+    sys.props.get("use-mirror-urls").forall(_.toBoolean)
 }
