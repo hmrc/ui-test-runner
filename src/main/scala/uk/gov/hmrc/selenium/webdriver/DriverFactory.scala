@@ -1,6 +1,17 @@
 /*
  * Copyright 2023 HM Revenue & Customs
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package uk.gov.hmrc.selenium.webdriver
@@ -26,13 +37,55 @@ class DriverFactory extends LazyLogging {
 
   def initialise(): WebDriver = {
     configureMirrorUrls()
+    TestRunnerConfig.browserType match {
+      case Some("chrome")  => new ChromeDriver(chromeOptions())
+      case Some("edge")    => new EdgeDriver(edgeOptions())
+      case Some("firefox") => new FirefoxDriver(firefoxOptions())
+      case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
+      case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
+    }
+  }
+
+  private def configureMirrorUrls(): Unit = {
+    if (!TestRunnerConfig.useMirrorUrls) {
+      logger.info("Mirror URL configuration is disabled")
+      return
+    }
+
     try
       TestRunnerConfig.browserType match {
-        case Some("chrome")  => new ChromeDriver(chromeOptions())
-        case Some("edge")    => new EdgeDriver(edgeOptions())
-        case Some("firefox") => new FirefoxDriver(firefoxOptions())
-        case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
-        case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
+        case Some("chrome") =>
+          TestRunnerConfig.chromeBrowserMirrorUrl.foreach { url =>
+            System.setProperty("webdriver.chrome.driver.mirror.url", url)
+            logger.info(s"Chrome browser mirror URL configured: $url")
+          }
+          TestRunnerConfig.chromeDriverMirrorUrl.foreach { url =>
+            System.setProperty("webdriver.chrome.driver.mirror.url", url)
+            logger.info(s"ChromeDriver mirror URL configured: $url")
+          }
+
+        case Some("firefox") =>
+          TestRunnerConfig.firefoxBrowserMirrorUrl.foreach { url =>
+            System.setProperty("webdriver.firefox.driver.mirror.url", url)
+            logger.info(s"Firefox browser mirror URL configured: $url")
+          }
+          TestRunnerConfig.firefoxDriverMirrorUrl.foreach { url =>
+            System.setProperty("webdriver.firefox.driver.mirror.url", url)
+            logger.info(s"GeckoDriver mirror URL configured: $url")
+          }
+
+        case Some("edge") =>
+          TestRunnerConfig.edgeBrowserMirrorUrl.foreach { url =>
+            System.setProperty("webdriver.edge.driver.mirror.url", url)
+            logger.info(s"Edge browser mirror URL configured: $url")
+          }
+          TestRunnerConfig.edgeDriverMirrorUrl.foreach { url =>
+            System.setProperty("webdriver.msedgedriver.mirror.url", url)
+            logger.info(s"EdgeDriver mirror URL configured: $url")
+          }
+
+        case _ =>
+          logger.warn("Browser type not found, skipping mirror URL configuration")
       }
     catch {
       case e: Exception if TestRunnerConfig.useMirrorUrls && e.getMessage.contains("artefactory.tax.service.gov.uk") =>
@@ -41,41 +94,6 @@ class DriverFactory extends LazyLogging {
       case e: Exception                                                                                              => throw e
     }
   }
-
-  private def configureMirrorUrls(): Unit =
-    TestRunnerConfig.browserType match {
-      case Some("chrome") =>
-        TestRunnerConfig.chromeBrowserMirrorUrl.foreach { url =>
-          System.setProperty("webdriver.chrome.driver.mirror.url", url)
-          logger.info(s"Chrome browser mirror URL configured: $url")
-        }
-        TestRunnerConfig.chromeDriverMirrorUrl.foreach { url =>
-          System.setProperty("webdriver.chrome.driver.mirror.url", url)
-          logger.info(s"Chrome browser mirror URL configured: $url")
-        }
-
-      case Some("firefox") =>
-        TestRunnerConfig.firefoxBrowserMirrorUrl.foreach { url =>
-          System.setProperty("webdriver.firefox.driver.mirror.url", url)
-          logger.info(s"Firefox browser mirror URL configured: $url")
-        }
-        TestRunnerConfig.firefoxDriverMirrorUrl.foreach { url =>
-          System.setProperty("webdriver.firefox.driver.mirror.url", url)
-          logger.info(s"GeckoDriver mirror URL configured: $url")
-        }
-      case Some("edge")    =>
-        TestRunnerConfig.edgeBrowserMirrorUrl.foreach { url =>
-          System.setProperty("webdriver.edge.driver.mirror.url", url)
-          logger.info(s"Edge browser mirror URL configured: $url")
-        }
-        TestRunnerConfig.edgeDriverMirrorUrl.foreach { url =>
-          System.setProperty("webdriver.msedgedriver.mirror.url", url)
-          logger.info(s"EdgeDriver mirror URL configured: $url")
-        }
-
-      case _ =>
-        logger.warn("Browser type not found, skipping mirror URL configuration")
-    }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions
