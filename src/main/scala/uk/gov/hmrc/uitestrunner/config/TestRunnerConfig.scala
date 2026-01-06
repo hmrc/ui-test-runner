@@ -126,5 +126,5 @@ object TestRunnerConfig {
     if (useMirrorUrls) Some(edgeDriverMirrorUrlValue) else None
 
   def useMirrorUrls: Boolean =
-    sys.props.get("use-mirror-urls").forall(_.toBoolean)
+    sys.props.getOrElse("browser.option.usemirrorurls", "true").toBoolean
 }
