@@ -73,6 +73,15 @@ sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=true "
 sbt -Dbrowser="<browser>" -Denvironment="<environment>" -Dbrowser.logging=true -Dbrowser.logging.level=INFO "testOnly uk.gov.hmrc.ui.specs.*"
 ```
 
+#### Mirror URLs
+Mirror URLs allow tests to download browsers from Artifactory instead of the internet, ensuring consistency across local and Jenkins environments. 
+
+Mirror Urls is enabled by default, make sure the VPN is connected, and the system will automatically use the configured Artifactory mirror. 
+
+If tests fail with ```Artefactory unreachable```, check your VPN connection.
+
+Mirror urls can be disabled with ```-Dbrowser.option.usemirrorurls=false``` if needed.
+
 ### Browser
 
 #### Start

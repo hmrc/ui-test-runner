@@ -97,7 +97,7 @@ class DriverFactory extends LazyLogging {
 
     if (exitCode != 0) {
       val errorMessage =
-        """ERROR: Artefactory unreachable. Are you connected to VPN? Your VPN connection is active""".stripMargin
+        """ERROR: Artefactory unreachable. Are you connected to VPN? Make sure your VPN connection is active""".stripMargin
 
       logger.error(errorMessage)
       throw DriverFactoryException(
