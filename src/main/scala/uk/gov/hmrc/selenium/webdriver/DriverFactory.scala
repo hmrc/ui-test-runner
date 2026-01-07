@@ -1,17 +1,6 @@
 /*
  * Copyright 2023 HM Revenue & Customs
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package uk.gov.hmrc.selenium.webdriver
@@ -24,6 +13,8 @@ import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.logging.{LogType, LoggingPreferences}
 import uk.gov.hmrc.selenium.webdriver.DriverFactory.BrowserExtensions
 import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
+import scala.sys.process._
+import scala.util.Try
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
@@ -52,35 +43,37 @@ class DriverFactory extends LazyLogging {
       return
     }
 
+    checkArtefactoryConnectivity()
+
     try
       TestRunnerConfig.browserType match {
         case Some("chrome") =>
           TestRunnerConfig.chromeBrowserMirrorUrl.foreach { url =>
-            System.setProperty("webdriver.chrome.driver.mirror.url", url)
+            System.setProperty("SE_BROWSER_MIRROR_URL", url)
             logger.info(s"Chrome browser mirror URL configured: $url")
           }
           TestRunnerConfig.chromeDriverMirrorUrl.foreach { url =>
-            System.setProperty("webdriver.chrome.driver.mirror.url", url)
+            System.setProperty("SE_DRIVER_MIRROR_URL", url)
             logger.info(s"ChromeDriver mirror URL configured: $url")
           }
 
         case Some("firefox") =>
           TestRunnerConfig.firefoxBrowserMirrorUrl.foreach { url =>
-            System.setProperty("webdriver.firefox.driver.mirror.url", url)
+            System.setProperty("SE_BROWSER_MIRROR_URL", url)
             logger.info(s"Firefox browser mirror URL configured: $url")
           }
           TestRunnerConfig.firefoxDriverMirrorUrl.foreach { url =>
-            System.setProperty("webdriver.firefox.driver.mirror.url", url)
+            System.setProperty("SE_DRIVER_MIRROR_URL", url)
             logger.info(s"GeckoDriver mirror URL configured: $url")
           }
 
         case Some("edge") =>
           TestRunnerConfig.edgeBrowserMirrorUrl.foreach { url =>
-            System.setProperty("webdriver.edge.driver.mirror.url", url)
+            System.setProperty("SE_BROWSER_MIRROR_URL", url)
             logger.info(s"Edge browser mirror URL configured: $url")
           }
           TestRunnerConfig.edgeDriverMirrorUrl.foreach { url =>
-            System.setProperty("webdriver.msedgedriver.mirror.url", url)
+            System.setProperty("SE_DRIVER_MIRROR_URL", url)
             logger.info(s"EdgeDriver mirror URL configured: $url")
           }
 
@@ -88,10 +81,30 @@ class DriverFactory extends LazyLogging {
           logger.warn("Browser type not found, skipping mirror URL configuration")
       }
     catch {
-      case e: Exception if TestRunnerConfig.useMirrorUrls && e.getMessage.contains("artefactory.tax.service.gov.uk") =>
-        logger.error("Your VPN might be off. Check your VPN connection and try again.\n")
-        throw e
-      case e: Exception                                                                                              => throw e
+      case e: Exception => throw e
+    }
+  }
+
+  private def checkArtefactoryConnectivity(): Unit = {
+
+    val url = "https://artefacts.tax.service.gov.uk/artifactory/api/system/ping"
+
+    logger.info(s"Checking artefactory connectivity: $url")
+
+    val exitCode = Try {
+      Seq("curl", "--silent", "--fail", "--max-time", "5", url).!
+    }.getOrElse(1)
+
+    if (exitCode != 0) {
+      val errorMessage =
+        """ERROR: Artefactory unreachable. Are you connected to VPN? Your VPN connection is active""".stripMargin
+
+      logger.error(errorMessage)
+      throw DriverFactoryException(
+        "Artefactory unreachable. Are you connected to VPN?"
+      )
+    } else {
+      logger.info("Artefactory is reachable. Proceeding with driver initialization.")
     }
   }
 
