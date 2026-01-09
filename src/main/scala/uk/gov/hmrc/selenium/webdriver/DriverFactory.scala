@@ -1,6 +1,17 @@
 /*
  * Copyright 2023 HM Revenue & Customs
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package uk.gov.hmrc.selenium.webdriver
@@ -13,8 +24,6 @@ import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.logging.{LogType, LoggingPreferences}
 import uk.gov.hmrc.selenium.webdriver.DriverFactory.BrowserExtensions
 import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
-import scala.sys.process._
-import scala.util.Try
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
@@ -26,86 +35,114 @@ class DriverFactory extends LazyLogging {
   private val firefoxBrowserVersion = TestRunnerConfig.browserFirefoxVersion
   private val chromeBrowserVersion  = TestRunnerConfig.browserChromeVersion
 
-  def initialise(): WebDriver = {
-    configureMirrorUrls()
-    TestRunnerConfig.browserType match {
-      case Some("chrome")  => new ChromeDriver(chromeOptions())
-      case Some("edge")    => new EdgeDriver(edgeOptions())
-      case Some("firefox") => new FirefoxDriver(firefoxOptions())
-      case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
-      case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
-    }
-  }
-
-  private def configureMirrorUrls(): Unit = {
-    if (!TestRunnerConfig.useMirrorUrls) {
-      logger.info("Mirror URL configuration is disabled")
-      return
-    }
-
-    checkArtefactoryConnectivity()
-
-    try
+  def initialise(): WebDriver =
+    sourceBrowserBinariesFromArtifactory {
       TestRunnerConfig.browserType match {
-        case Some("chrome") =>
-          TestRunnerConfig.chromeBrowserMirrorUrl.foreach { url =>
-            System.setProperty("SE_BROWSER_MIRROR_URL", url)
-            logger.info(s"Chrome browser mirror URL configured: $url")
-          }
-          TestRunnerConfig.chromeDriverMirrorUrl.foreach { url =>
-            System.setProperty("SE_DRIVER_MIRROR_URL", url)
-            logger.info(s"ChromeDriver mirror URL configured: $url")
-          }
-
-        case Some("firefox") =>
-          TestRunnerConfig.firefoxBrowserMirrorUrl.foreach { url =>
-            System.setProperty("SE_BROWSER_MIRROR_URL", url)
-            logger.info(s"Firefox browser mirror URL configured: $url")
-          }
-          TestRunnerConfig.firefoxDriverMirrorUrl.foreach { url =>
-            System.setProperty("SE_DRIVER_MIRROR_URL", url)
-            logger.info(s"GeckoDriver mirror URL configured: $url")
-          }
-
-        case Some("edge") =>
-          TestRunnerConfig.edgeBrowserMirrorUrl.foreach { url =>
-            System.setProperty("SE_BROWSER_MIRROR_URL", url)
-            logger.info(s"Edge browser mirror URL configured: $url")
-          }
-          TestRunnerConfig.edgeDriverMirrorUrl.foreach { url =>
-            System.setProperty("SE_DRIVER_MIRROR_URL", url)
-            logger.info(s"EdgeDriver mirror URL configured: $url")
-          }
-
-        case _ =>
-          logger.warn("Browser type not found, skipping mirror URL configuration")
+        case Some("chrome")  => new ChromeDriver(chromeOptions())
+        case Some("edge")    => new EdgeDriver(edgeOptions())
+        case Some("firefox") => new FirefoxDriver(firefoxOptions())
+        case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
+        case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
       }
-    catch {
-      case e: Exception => throw e
     }
-  }
 
-  private def checkArtefactoryConnectivity(): Unit = {
+  private def sourceBrowserBinariesFromArtifactory(initWebDriver: => WebDriver): WebDriver = {
+    if (!TestRunnerConfig.downloadBrowsersFromArtifactory) {
+      logger.info("Artifactory download disabled - using default browser binary sources")
+      return initWebDriver
+    }
 
-    val url = "https://artefacts.tax.service.gov.uk/artifactory/api/system/ping"
+    val userHasSetMirrorUrls =
+      sys.props.contains("SE_BROWSER_MIRROR_URL") ||
+        sys.props.contains("SE_DRIVER_MIRROR_URL") ||
+        sys.env.contains("SE_BROWSER_MIRROR_URL") ||
+        sys.env.contains("SE_DRIVER_MIRROR_URL")
 
-    logger.info(s"Checking artefactory connectivity: $url")
+    if (userHasSetMirrorUrls) {
+      logger.info("User has already configured mirror URLs via system properties - skipping Artifactory configuration")
+      return initWebDriver
+    }
 
-    val exitCode = Try {
-      Seq("curl", "--silent", "--fail", "--max-time", "5", url).!
-    }.getOrElse(1)
+    val artifactoryBaseUrl = TestRunnerConfig.artifactoryBaseUrl
 
-    if (exitCode != 0) {
+    if (!isArtifactoryHealthy(artifactoryBaseUrl)) {
       val errorMessage =
         """ERROR: Artefactory unreachable. Are you connected to VPN? Make sure your VPN connection is active""".stripMargin
 
       logger.error(errorMessage)
-      throw DriverFactoryException(
-        "Artefactory unreachable. Are you connected to VPN?"
-      )
-    } else {
-      logger.info("Artefactory is reachable. Proceeding with driver initialization.")
+      throw DriverFactoryException("Artifactory unreachable. Are you connected to VPN?")
     }
+
+    val (browserMirrorUrl, driverMirrorUrl) = TestRunnerConfig.browserType match {
+      case Some("chrome") =>
+        (s"$artifactoryBaseUrl/chrome-browser/", s"$artifactoryBaseUrl/chrome-browser/")
+      case Some("firefox") =>
+        (s"$artifactoryBaseUrl/firefox-browser/", s"$artifactoryBaseUrl/firefox-browser/")
+      case Some("edge") =>
+        (s"$artifactoryBaseUrl/edge-browser/", s"$artifactoryBaseUrl/edge-driver/")
+      case _ =>
+        (s"$artifactoryBaseUrl/chrome-browser/", s"$artifactoryBaseUrl/chrome-browser/")
+    }
+
+    val properties = Map(
+      "SE_BROWSER_MIRROR_URL" -> browserMirrorUrl,
+      "SE_DRIVER_MIRROR_URL"  -> driverMirrorUrl
+    )
+
+    logger.info(s"Configuring Artifactory mirror URLs:")
+    logger.info(s"  Browser binary: $browserMirrorUrl")
+    logger.info(s"  Driver binary: $driverMirrorUrl")
+
+
+    try {
+      properties.foreach { case (key, value) =>
+        System.setProperty(key, value)
+        logger.debug(s"Set system property: $key=$value")
+      }
+      initWebDriver
+    } catch {
+      case e: org.openqa.selenium.WebDriverException if isArtifactoryConnectionError(e) =>
+        logger.error(
+          """ERROR: Artefactory unreachable. Are you connected to VPN? Make sure your VPN connection is active""".stripMargin
+
+        )
+        throw e
+    } finally {
+      properties.keys.foreach(System.clearProperty)
+      logger.debug("Cleared Artifactory mirror URL system properties")
+    }
+  }
+
+  private def isArtifactoryHealthy(artifactoryBaseUrl: String): Boolean = {
+    val healthcheck = s"$artifactoryBaseUrl/api/system/ping"
+    logger.info(s"Checking Artifactory connectivity: $healthcheck")
+
+    val isReachable = {
+      val conn = new java.net.URL(healthcheck).openConnection().asInstanceOf[java.net.HttpURLConnection]
+      conn.setConnectTimeout(1000)
+      try {
+        conn.getResponseCode
+        true
+      } catch {
+        case _: java.net.SocketTimeoutException => false
+        case _: java.net.UnknownHostException => false
+        case _: java.io.IOException => false
+      }
+    }
+
+    if (!isReachable) {
+      logger.warn(s"$healthcheck is not reachable")
+    } else {
+      logger.info("Artifactory is reachable. Proceeding with driver initialization.")
+    }
+
+    isReachable
+  }
+
+  private def isArtifactoryConnectionError(e: org.openqa.selenium.WebDriverException): Boolean = {
+    val message = Option(e.getMessage).getOrElse("")
+    message.contains("artefacts.tax.service.gov.uk") ||
+    message.contains("error sending request for url")
   }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {

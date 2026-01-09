@@ -24,13 +24,6 @@ import scala.jdk.DurationConverters._
 
 object TestRunnerConfig {
 
-  private val chromeBrowserMirrorUrlValue  = "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/"
-  private val chromeDriverMirrorUrlValue   = "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/"
-  private val firefoxBrowserMirrorUrlValue = "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/"
-  private val firefoxDriverMirrorUrlValue  = "https://artefacts.tax.service.gov.uk/artifactory/firefox-browser/"
-  private val edgeBrowserMirrorUrlValue    = "https://artefacts.tax.service.gov.uk/artifactory/edge-browser/"
-  private val edgeDriverMirrorUrlValue     = "https://artefacts.tax.service.gov.uk/artifactory/edge-driver/"
-
   // Everything is a `def`` so that tests can invalidate the config
   private def configuration: Config =
     ConfigFactory.load()
@@ -107,24 +100,12 @@ object TestRunnerConfig {
   def anyLoggingEnabled: Boolean =
     browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled
 
-  def chromeBrowserMirrorUrl: Option[String] =
-    if (useMirrorUrls) Some(chromeBrowserMirrorUrlValue) else None
+  def downloadBrowsersFromArtifactory: Boolean =
+    sys.props.getOrElse("browser.option.downloadFromArtifactory", "true").toBoolean
 
-  def chromeDriverMirrorUrl: Option[String] =
-    if (useMirrorUrls) Some(chromeDriverMirrorUrlValue) else None
-
-  def firefoxBrowserMirrorUrl: Option[String] =
-    if (useMirrorUrls) Some(firefoxBrowserMirrorUrlValue) else None
-
-  def firefoxDriverMirrorUrl: Option[String] =
-    if (useMirrorUrls) Some(firefoxDriverMirrorUrlValue) else None
-
-  def edgeBrowserMirrorUrl: Option[String] =
-    if (useMirrorUrls) Some(edgeBrowserMirrorUrlValue) else None
-
-  def edgeDriverMirrorUrl: Option[String] =
-    if (useMirrorUrls) Some(edgeDriverMirrorUrlValue) else None
-
-  def useMirrorUrls: Boolean =
-    sys.props.getOrElse("browser.option.usemirrorurls", "true").toBoolean
+  def artifactoryBaseUrl: String =
+    sys.props.getOrElse(
+      "ARTIFACTORY_BASE_URL",
+      sys.env.getOrElse("ARTIFACTORY_BASE_URL", "https://artefacts.tax.service.gov.uk/artifactory")
+    )
 }

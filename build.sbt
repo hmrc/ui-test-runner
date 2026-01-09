@@ -11,6 +11,7 @@ lazy val library = (project in file("."))
     crossScalaVersions := Seq("2.13.14", "3.3.4"),
     isPublicArtefact := true,
     libraryDependencies ++= Dependencies.compile,
+    libraryDependencies ++= Dependencies.test,
     Compile / resourceGenerators += packageBrowserExtensions.taskValue
   )
 
