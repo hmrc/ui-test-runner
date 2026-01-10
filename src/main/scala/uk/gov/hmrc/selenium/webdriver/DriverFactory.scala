@@ -74,13 +74,13 @@ class DriverFactory extends LazyLogging {
     }
 
     val (browserMirrorUrl, driverMirrorUrl) = TestRunnerConfig.browserType match {
-      case Some("chrome") =>
+      case Some("chrome")  =>
         (s"$artifactoryBaseUrl/chrome-browser/", s"$artifactoryBaseUrl/chrome-browser/")
       case Some("firefox") =>
         (s"$artifactoryBaseUrl/firefox-browser/", s"$artifactoryBaseUrl/firefox-browser/")
-      case Some("edge") =>
+      case Some("edge")    =>
         (s"$artifactoryBaseUrl/edge-browser/", s"$artifactoryBaseUrl/edge-driver/")
-      case _ =>
+      case _               =>
         (s"$artifactoryBaseUrl/chrome-browser/", s"$artifactoryBaseUrl/chrome-browser/")
     }
 
@@ -93,7 +93,6 @@ class DriverFactory extends LazyLogging {
     logger.info(s"  Browser binary: $browserMirrorUrl")
     logger.info(s"  Driver binary: $driverMirrorUrl")
 
-
     try {
       properties.foreach { case (key, value) =>
         System.setProperty(key, value)
@@ -104,7 +103,6 @@ class DriverFactory extends LazyLogging {
       case e: org.openqa.selenium.WebDriverException if isArtifactoryConnectionError(e) =>
         logger.error(
           """ERROR: Artefactory unreachable. Are you connected to VPN? Make sure your VPN connection is active""".stripMargin
-
         )
         throw e
     } finally {
@@ -125,8 +123,8 @@ class DriverFactory extends LazyLogging {
         true
       } catch {
         case _: java.net.SocketTimeoutException => false
-        case _: java.net.UnknownHostException => false
-        case _: java.io.IOException => false
+        case _: java.net.UnknownHostException   => false
+        case _: java.io.IOException             => false
       }
     }
 

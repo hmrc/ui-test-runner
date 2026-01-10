@@ -137,7 +137,7 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
 
       exception.getMessage should include("VPN")
       // Should fail in less than 5 seconds (not 4 minutes)
-      duration should be < 5000L
+      duration             should be < 5000L
 
       System.clearProperty("ARTIFACTORY_BASE_URL")
     }
