@@ -128,6 +128,8 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
     }
 
     "fail fast with VPN error when Artifactory is unreachable" in {
+      assume(!sys.env.contains("CI"), "Skipping VPN test in CI environment")
+
       System.setProperty("browser", "chrome")
       System.setProperty("browser.version", "136")
       System.setProperty("browser.option.downloadFromArtifactory", "true")
