@@ -10,8 +10,4 @@ object Dependencies {
     "org.scalatest"              %% "scalatest"       % "3.2.19",
     "org.seleniumhq.selenium"     % "selenium-java"   % "4.33.0"
   )
-
-  val test = Seq(
-    "com.github.tomakehurst" % "wiremock-jre8" % "3.0.1" % Test
-  )
 }

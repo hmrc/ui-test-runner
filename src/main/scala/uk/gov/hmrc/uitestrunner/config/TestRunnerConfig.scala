@@ -105,7 +105,7 @@ object TestRunnerConfig {
 
   def artifactoryBaseUrl: String =
     sys.props.getOrElse(
-      "ARTIFACTORY_BASE_URL",
-      sys.env.getOrElse("ARTIFACTORY_BASE_URL", "https://artefacts.tax.service.gov.uk/artifactory")
+      "ARTIFACTORY_URI",
+      sys.env.getOrElse("ARTIFACTORY_URI", "https://artefacts.tax.service.gov.uk/artifactory")
     )
 }

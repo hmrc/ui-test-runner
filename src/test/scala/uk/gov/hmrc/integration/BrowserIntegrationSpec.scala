@@ -31,8 +31,11 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
     System.clearProperty("browser")
     System.clearProperty("browser.version")
     System.clearProperty("browser.option.downloadFromArtifactory")
-    System.clearProperty("SE_BROWSER_MIRROR_URL")
-    System.clearProperty("SE_DRIVER_MIRROR_URL")
+    System.clearProperty("SE_CHROME_MIRROR_URL")
+    System.clearProperty("SE_CHROMEDRIVER_MIRROR_URL")
+    System.clearProperty("SE_FIREFOX_MIRROR_URL")
+    System.clearProperty("SE_GECKODRIVER_MIRROR_URL")
+    System.clearProperty("ARTIFACTORY_URI")
 
     ConfigFactory.invalidateCaches()
   }
@@ -58,6 +61,7 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
       System.setProperty("browser", "chrome")
       System.setProperty("browser.version", "136")
       System.setProperty("browser.option.downloadFromArtifactory", "false")
+      System.setProperty("ARTIFACTORY_URI", "https://unreachable-artifactory.invalid")
       ConfigFactory.invalidateCaches()
 
       startBrowser()
@@ -67,12 +71,16 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
       quitBrowser()
     }
 
-    "respect user-configured SE_BROWSER_MIRROR_URL and skip Artifactory configuration" in {
+    "respect user-configured SE_CHROME_MIRROR_URL and skip Artifactory configuration" in {
       System.setProperty("browser", "chrome")
       System.setProperty("browser.version", "136")
       System.setProperty("browser.option.downloadFromArtifactory", "true")
-      System.setProperty("SE_BROWSER_MIRROR_URL", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
-      System.setProperty("SE_DRIVER_MIRROR_URL", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
+      System.setProperty("ARTIFACTORY_URI", "https://unreachable-artifactory.invalid")
+      System.setProperty("SE_CHROME_MIRROR_URL", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
+      System.setProperty(
+        "SE_CHROMEDRIVER_MIRROR_URL",
+        "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/"
+      )
       ConfigFactory.invalidateCaches()
 
       startBrowser()
@@ -123,8 +131,7 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
       System.setProperty("browser", "chrome")
       System.setProperty("browser.version", "136")
       System.setProperty("browser.option.downloadFromArtifactory", "true")
-      // Set an unreachable Artifactory URL using system property
-      System.setProperty("ARTIFACTORY_BASE_URL", "https://unreachable-artifactory.invalid")
+      System.setProperty("ARTIFACTORY_URI", "https://unreachable-artifactory.invalid")
       ConfigFactory.invalidateCaches()
 
       val startTime = System.currentTimeMillis()
@@ -136,10 +143,7 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
       val duration = System.currentTimeMillis() - startTime
 
       exception.getMessage should include("VPN")
-      // Should fail in less than 5 seconds (not 4 minutes)
       duration             should be < 5000L
-
-      System.clearProperty("ARTIFACTORY_BASE_URL")
     }
   }
 }

@@ -52,14 +52,29 @@ class DriverFactory extends LazyLogging {
       return initWebDriver
     }
 
-    val userHasSetMirrorUrls =
-      sys.props.contains("SE_BROWSER_MIRROR_URL") ||
-        sys.props.contains("SE_DRIVER_MIRROR_URL") ||
-        sys.env.contains("SE_BROWSER_MIRROR_URL") ||
-        sys.env.contains("SE_DRIVER_MIRROR_URL")
+    val userHasSetMirrorUrls = TestRunnerConfig.browserType match {
+      case Some("chrome")  =>
+        sys.props.contains("SE_CHROME_MIRROR_URL") ||
+        sys.props.contains("SE_CHROMEDRIVER_MIRROR_URL") ||
+        sys.env.contains("SE_CHROME_MIRROR_URL") ||
+        sys.env.contains("SE_CHROMEDRIVER_MIRROR_URL")
+      case Some("firefox") =>
+        sys.props.contains("SE_FIREFOX_MIRROR_URL") ||
+        sys.props.contains("SE_GECKODRIVER_MIRROR_URL") ||
+        sys.env.contains("SE_FIREFOX_MIRROR_URL") ||
+        sys.env.contains("SE_GECKODRIVER_MIRROR_URL")
+      case Some("edge")    =>
+        sys.props.contains("SE_MSEDGE_MIRROR_URL") ||
+        sys.props.contains("SE_MSEDGEDRIVER_MIRROR_URL") ||
+        sys.env.contains("SE_MSEDGE_MIRROR_URL") ||
+        sys.env.contains("SE_MSEDGEDRIVER_MIRROR_URL")
+      case _               => false
+    }
 
     if (userHasSetMirrorUrls) {
-      logger.info("User has already configured mirror URLs via system properties - skipping Artifactory configuration")
+      logger.info(
+        "User has already configured browser-specific mirror URLs via system properties - skipping Artifactory configuration"
+      )
       return initWebDriver
     }
 
@@ -73,38 +88,39 @@ class DriverFactory extends LazyLogging {
       throw DriverFactoryException("Artifactory unreachable. Are you connected to VPN?")
     }
 
-    val (browserMirrorUrl, driverMirrorUrl) = TestRunnerConfig.browserType match {
+    val properties = TestRunnerConfig.browserType match {
       case Some("chrome")  =>
-        (s"$artifactoryBaseUrl/chrome-browser/", s"$artifactoryBaseUrl/chrome-browser/")
+        Map(
+          "SE_CHROME_MIRROR_URL"       -> s"$artifactoryBaseUrl/chrome-browser/",
+          "SE_CHROMEDRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/chrome-browser/"
+        )
       case Some("firefox") =>
-        (s"$artifactoryBaseUrl/firefox-browser/", s"$artifactoryBaseUrl/firefox-browser/")
+        Map(
+          "SE_FIREFOX_MIRROR_URL"     -> s"$artifactoryBaseUrl/firefox-browser/",
+          "SE_GECKODRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/firefox-browser/"
+        )
       case Some("edge")    =>
-        (s"$artifactoryBaseUrl/edge-browser/", s"$artifactoryBaseUrl/edge-driver/")
+        Map(
+          "SE_MSEDGE_MIRROR_URL"       -> s"$artifactoryBaseUrl/edge-browser/",
+          "SE_MSEDGEDRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/edge-driver/"
+        )
       case _               =>
-        (s"$artifactoryBaseUrl/chrome-browser/", s"$artifactoryBaseUrl/chrome-browser/")
+        Map(
+          "SE_CHROME_MIRROR_URL"       -> s"$artifactoryBaseUrl/chrome-browser/",
+          "SE_CHROMEDRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/chrome-browser/"
+        )
     }
 
-    val properties = Map(
-      "SE_BROWSER_MIRROR_URL" -> browserMirrorUrl,
-      "SE_DRIVER_MIRROR_URL"  -> driverMirrorUrl
-    )
-
     logger.info(s"Configuring Artifactory mirror URLs:")
-    logger.info(s"  Browser binary: $browserMirrorUrl")
-    logger.info(s"  Driver binary: $driverMirrorUrl")
+    properties.foreach { case (key, value) =>
+      logger.info(s"  $key -> $value")
+    }
 
     try {
       properties.foreach { case (key, value) =>
         System.setProperty(key, value)
-        logger.debug(s"Set system property: $key=$value")
       }
       initWebDriver
-    } catch {
-      case e: org.openqa.selenium.WebDriverException if isArtifactoryConnectionError(e) =>
-        logger.error(
-          """ERROR: Artefactory unreachable. Are you connected to VPN? Make sure your VPN connection is active""".stripMargin
-        )
-        throw e
     } finally {
       properties.keys.foreach(System.clearProperty)
       logger.debug("Cleared Artifactory mirror URL system properties")
@@ -135,12 +151,6 @@ class DriverFactory extends LazyLogging {
     }
 
     isReachable
-  }
-
-  private def isArtifactoryConnectionError(e: org.openqa.selenium.WebDriverException): Boolean = {
-    val message = Option(e.getMessage).getOrElse("")
-    message.contains("artefacts.tax.service.gov.uk") ||
-    message.contains("error sending request for url")
   }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
