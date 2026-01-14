@@ -36,7 +36,7 @@ class DriverFactory extends LazyLogging {
   private val chromeBrowserVersion  = TestRunnerConfig.browserChromeVersion
 
   def initialise(): WebDriver =
-    sourceBrowserBinariesFromArtifactory {
+    SourceBrowserBinariesFromArtifactory {
       TestRunnerConfig.browserType match {
         case Some("chrome")  => new ChromeDriver(chromeOptions())
         case Some("edge")    => new EdgeDriver(edgeOptions())
@@ -45,113 +45,6 @@ class DriverFactory extends LazyLogging {
         case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
       }
     }
-
-  private def sourceBrowserBinariesFromArtifactory(initWebDriver: => WebDriver): WebDriver = {
-    if (!TestRunnerConfig.downloadBrowsersFromArtifactory) {
-      logger.info("Artifactory download disabled - using default browser binary sources")
-      return initWebDriver
-    }
-
-    val userHasSetMirrorUrls = TestRunnerConfig.browserType match {
-      case Some("chrome")  =>
-        sys.props.contains("SE_CHROME_MIRROR_URL") ||
-        sys.props.contains("SE_CHROMEDRIVER_MIRROR_URL") ||
-        sys.env.contains("SE_CHROME_MIRROR_URL") ||
-        sys.env.contains("SE_CHROMEDRIVER_MIRROR_URL")
-      case Some("firefox") =>
-        sys.props.contains("SE_FIREFOX_MIRROR_URL") ||
-        sys.props.contains("SE_GECKODRIVER_MIRROR_URL") ||
-        sys.env.contains("SE_FIREFOX_MIRROR_URL") ||
-        sys.env.contains("SE_GECKODRIVER_MIRROR_URL")
-      case Some("edge")    =>
-        sys.props.contains("SE_MSEDGE_MIRROR_URL") ||
-        sys.props.contains("SE_MSEDGEDRIVER_MIRROR_URL") ||
-        sys.env.contains("SE_MSEDGE_MIRROR_URL") ||
-        sys.env.contains("SE_MSEDGEDRIVER_MIRROR_URL")
-      case _               => false
-    }
-
-    if (userHasSetMirrorUrls) {
-      logger.info(
-        "User has already configured browser-specific mirror URLs via system properties - skipping Artifactory configuration"
-      )
-      return initWebDriver
-    }
-
-    val artifactoryBaseUrl = TestRunnerConfig.artifactoryBaseUrl
-
-    if (!isArtifactoryHealthy(artifactoryBaseUrl)) {
-      val errorMessage =
-        """ERROR: Artefactory unreachable. Are you connected to VPN? Make sure your VPN connection is active""".stripMargin
-
-      logger.error(errorMessage)
-      throw DriverFactoryException("Artifactory unreachable. Are you connected to VPN?")
-    }
-
-    val properties = TestRunnerConfig.browserType match {
-      case Some("chrome")  =>
-        Map(
-          "SE_CHROME_MIRROR_URL"       -> s"$artifactoryBaseUrl/chrome-browser/",
-          "SE_CHROMEDRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/chrome-browser/"
-        )
-      case Some("firefox") =>
-        Map(
-          "SE_FIREFOX_MIRROR_URL"     -> s"$artifactoryBaseUrl/firefox-browser/",
-          "SE_GECKODRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/firefox-browser/"
-        )
-      case Some("edge")    =>
-        Map(
-          "SE_MSEDGE_MIRROR_URL"       -> s"$artifactoryBaseUrl/edge-browser/",
-          "SE_MSEDGEDRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/edge-driver/"
-        )
-      case _               =>
-        Map(
-          "SE_CHROME_MIRROR_URL"       -> s"$artifactoryBaseUrl/chrome-browser/",
-          "SE_CHROMEDRIVER_MIRROR_URL" -> s"$artifactoryBaseUrl/chrome-browser/"
-        )
-    }
-
-    logger.info(s"Configuring Artifactory mirror URLs:")
-    properties.foreach { case (key, value) =>
-      logger.info(s"  $key -> $value")
-    }
-
-    try {
-      properties.foreach { case (key, value) =>
-        System.setProperty(key, value)
-      }
-      initWebDriver
-    } finally {
-      properties.keys.foreach(System.clearProperty)
-      logger.debug("Cleared Artifactory mirror URL system properties")
-    }
-  }
-
-  private def isArtifactoryHealthy(artifactoryBaseUrl: String): Boolean = {
-    val healthcheck = s"$artifactoryBaseUrl/api/system/ping"
-    logger.info(s"Checking Artifactory connectivity: $healthcheck")
-
-    val isReachable = {
-      val conn = new java.net.URL(healthcheck).openConnection().asInstanceOf[java.net.HttpURLConnection]
-      conn.setConnectTimeout(1000)
-      try {
-        conn.getResponseCode
-        true
-      } catch {
-        case _: java.net.SocketTimeoutException => false
-        case _: java.net.UnknownHostException   => false
-        case _: java.io.IOException             => false
-      }
-    }
-
-    if (!isReachable) {
-      logger.warn(s"$healthcheck is not reachable")
-    } else {
-      logger.info("Artifactory is reachable. Proceeding with driver initialization.")
-    }
-
-    isReachable
-  }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {
     val options: ChromeOptions = new ChromeOptions

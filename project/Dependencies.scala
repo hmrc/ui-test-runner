@@ -8,6 +8,9 @@ object Dependencies {
     "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.5",
     "com.vladsch.flexmark"        % "flexmark-all"    % "0.64.8",
     "org.scalatest"              %% "scalatest"       % "3.2.19",
-    "org.seleniumhq.selenium"     % "selenium-java"   % "4.33.0"
+    "org.seleniumhq.selenium"     % "selenium-java"   % "4.33.0",
+    "org.scalamock"              %% "scalamock"       % "7.5.3"  % Test,
+    "org.wiremock"                % "wiremock"        % "3.13.2" % Test,
+    "com.lihaoyi"                %% "os-lib"          % "0.11.6" % Test
   )
 }

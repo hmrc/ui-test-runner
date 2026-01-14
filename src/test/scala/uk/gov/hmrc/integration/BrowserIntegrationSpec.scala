@@ -16,12 +16,16 @@
 
 package uk.gov.hmrc.integration
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import com.typesafe.config.ConfigFactory
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.helpers.withSystemProperties
 import uk.gov.hmrc.selenium.webdriver.{Browser, Driver}
 
 class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with Browser {
@@ -71,23 +75,47 @@ class BrowserIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
       quitBrowser()
     }
 
-    "respect user-configured SE_CHROME_MIRROR_URL and skip Artifactory configuration" in {
-      System.setProperty("browser", "chrome")
-      System.setProperty("browser.version", "136")
-      System.setProperty("browser.option.downloadFromArtifactory", "true")
-      System.setProperty("ARTIFACTORY_URI", "https://unreachable-artifactory.invalid")
-      System.setProperty("SE_CHROME_MIRROR_URL", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
-      System.setProperty(
-        "SE_CHROMEDRIVER_MIRROR_URL",
-        "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/"
-      )
-      ConfigFactory.invalidateCaches()
+    "source browser binaries from artifactory" in {
+      val fakeArtifactory = new WireMockServer(options().dynamicPort())
 
-      startBrowser()
+      // this is needed because we fail early if artifactory is not
+      // enabled, so our test won't verify that selenium is trying
+      // to use artifactory if this request fails.
+      fakeArtifactory
+        .stubFor(
+          get("/api/system/ping")
+            .willReturn(aResponse().withStatus(200))
+        )
 
-      Driver.instance.asInstanceOf[ChromeDriver].getSessionId shouldNot be(null)
+      fakeArtifactory
+        .stubFor(
+          get("/chrome-browser/known-good-versions-with-downloads.json")
+            .willReturn(aResponse().withStatus(503))
+        )
 
-      quitBrowser()
+      try {
+        fakeArtifactory.start()
+
+        withSystemProperties(
+          "browser"                                -> "chrome",
+          "browser.version"                        -> "136",
+          "ARTIFACTORY_URI"                        -> fakeArtifactory.baseUrl(),
+          "browser.option.downloadFromArtifactory" -> "true",
+          // without the following it didn't always seem to make a request to artifactory so
+          // the tests could be flakey - there wouldn't always be an exception intercepted
+          "SE_CACHE_PATH"                          -> os.temp.dir(deleteOnExit = true).toString
+        ) {
+          ConfigFactory.invalidateCaches()
+
+          intercept[Exception] {
+            startBrowser()
+          }
+        }
+
+        fakeArtifactory
+          .verify(1, getRequestedFor(urlEqualTo("/chrome-browser/known-good-versions-with-downloads.json")))
+      } finally
+        fakeArtifactory.stop()
     }
 
     "start and quit Firefox browser with Artifactory enabled" in {
