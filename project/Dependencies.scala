@@ -9,6 +9,7 @@ object Dependencies {
     "com.vladsch.flexmark"        % "flexmark-all"    % "0.64.8",
     "org.scalatest"              %% "scalatest"       % "3.2.19",
     "org.seleniumhq.selenium"     % "selenium-java"   % "4.33.0",
-    "org.wiremock"                % "wiremock"        % "3.13.2" % Test
+    "org.wiremock"                % "wiremock"        % "3.13.2" % Test,
+    "com.lihaoyi"                %% "os-lib"          % "0.11.6" % Test
   )
 }

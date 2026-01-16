@@ -19,6 +19,9 @@ package uk.gov.hmrc.selenium.webdriver
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
+import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
+import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.helpers.{unusedPort, withSystemProperties}
@@ -149,8 +152,69 @@ class SourceBrowserBinariesFromArtifactorySpec extends AnyWordSpec with Matchers
         sys.props.get("SE_MSEDGE_MIRROR_URL")       shouldBe Some(s"edge-browser")
         sys.props.get("SE_MSEDGEDRIVER_MIRROR_URL") shouldBe Some(s"edge-driver")
       }
-
     }
   }
 
+  "the mirror url system properties which we are using to configure selenium-manager" when {
+    "starting chrome browser" should {
+      "override where browser binaries are sourced from" in {
+        withSystemProperties(
+          // without the following it doesn't always seem to make a request to artifactory so
+          // the tests could be flakey - there wouldn't always be an exception intercepted
+          "SE_CACHE_PATH" -> os.temp.dir(deleteOnExit = true).toString
+        ) {
+          new SourceBrowserBinariesFromArtifactory(
+            sysEnv = Map.empty,
+            artifactoryBaseUrl = s"http://localhost:$unusedPort"
+          ).configureSeleniumManagerTemporarily {
+            intercept[Exception] {
+              val options = new ChromeOptions()
+              options.setBrowserVersion("136")
+              new ChromeDriver(options)
+            }.getMessage should include("Unable to obtain: chromedriver")
+          }
+        }
+      }
+    }
+
+    "starting firefox browser" should {
+      "override where browser binaries are sourced from" in {
+        withSystemProperties(
+          // without the following it doesn't always seem to make a request to artifactory so
+          // the tests could be flakey - there wouldn't always be an exception intercepted
+          "SE_CACHE_PATH" -> os.temp.dir(deleteOnExit = true).toString
+        ) {
+          new SourceBrowserBinariesFromArtifactory(
+            sysEnv = Map.empty,
+            artifactoryBaseUrl = s"http://localhost:$unusedPort"
+          ).configureSeleniumManagerTemporarily {
+            intercept[Exception] {
+              val options = new FirefoxOptions()
+              new FirefoxDriver(options)
+            }.getMessage should include("Unable to obtain: geckodriver")
+          }
+        }
+      }
+    }
+
+    "starting edge browser" should { // this test is slow to fail
+      "override where browser binaries are sourced from" in {
+        withSystemProperties(
+          // without the following it doesn't always seem to make a request to artifactory so
+          // the tests could be flakey - there wouldn't always be an exception intercepted
+          "SE_CACHE_PATH" -> os.temp.dir(deleteOnExit = true).toString
+        ) {
+          new SourceBrowserBinariesFromArtifactory(
+            sysEnv = Map.empty,
+            artifactoryBaseUrl = s"http://localhost:$unusedPort"
+          ).configureSeleniumManagerTemporarily {
+            intercept[Exception] {
+              val options = new EdgeOptions()
+              new EdgeDriver(options)
+            }.getMessage should include("Unable to obtain: msedgedriver")
+          }
+        }
+      }
+    }
+  }
 }
