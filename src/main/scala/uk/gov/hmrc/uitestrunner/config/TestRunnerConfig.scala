@@ -128,12 +128,11 @@ object TestRunnerConfig {
 
   // Option 2. configure when used, temporarily
 
-  def withBrowserBinariesFromArtifactory[T](block: => T): T = {
+  def withBrowserBinariesFromArtifactory[T](block: => T): T =
     if (downloadBrowsersFromArtifactory) {
       sourceBrowserBinariesFromArtifactory
         .checkArtifactoryIsAvailable() // this is cached, only checked once
         .configureSeleniumManagerTemporarily(block)
     } else block
-  }
 
 }

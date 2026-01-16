@@ -18,15 +18,15 @@ package uk.gov.hmrc.selenium.webdriver
 
 class SourceBrowserBinariesFromArtifactory(sysEnv: Map[String, String], artifactoryBaseUrl: String) {
   private val systemProperties = Seq(
-    "SE_CHROME_MIRROR_URL" ->
+    "SE_CHROME_MIRROR_URL"       ->
       sysEnv.getOrElse("SE_CHROME_MIRROR_URL", s"$artifactoryBaseUrl/chrome-browser/"),
     "SE_CHROMEDRIVER_MIRROR_URL" ->
       sysEnv.getOrElse("SE_CHROMEDRIVER_MIRROR_URL", s"$artifactoryBaseUrl/chrome-browser/"),
-    "SE_FIREFOX_MIRROR_URL" ->
+    "SE_FIREFOX_MIRROR_URL"      ->
       sysEnv.getOrElse("SE_FIREFOX_MIRROR_URL", s"$artifactoryBaseUrl/firefox-browser/"),
-    "SE_GECKODRIVER_MIRROR_URL" ->
+    "SE_GECKODRIVER_MIRROR_URL"  ->
       sysEnv.getOrElse("SE_GECKODRIVER_MIRROR_URL", s"$artifactoryBaseUrl/firefox-browser/"),
-    "SE_MSEDGE_MIRROR_URL" ->
+    "SE_MSEDGE_MIRROR_URL"       ->
       sysEnv.getOrElse("SE_MSEDGE_MIRROR_URL", s"$artifactoryBaseUrl/edge-browser/"),
     "SE_MSEDGEDRIVER_MIRROR_URL" ->
       sysEnv.getOrElse("SE_MSEDGEDRIVER_MIRROR_URL", s"$artifactoryBaseUrl/edge-driver/")
@@ -43,19 +43,22 @@ class SourceBrowserBinariesFromArtifactory(sysEnv: Map[String, String], artifact
     } finally
       originalValues.foreach {
         case (key, Some(value)) => sys.props.update(key, value)
-        case (key, None) => sys.props.remove(key)
+        case (key, None)        => sys.props.remove(key)
       }
   }
 
   def checkArtifactoryIsAvailable(): this.type = {
     if (!isArtifactoryAvailable) {
-      throw new RuntimeException("Artifactory unreachable. Are you connected to VPN? Won't be able to download browser binaries from it, tests would hang.")
+      throw new RuntimeException(
+        "Artifactory unreachable. Are you connected to VPN? Won't be able to download browser binaries from it, tests would hang."
+      )
     }
     this
   }
 
   private lazy val isArtifactoryAvailable: Boolean = {
-    val conn = new java.net.URL(s"$artifactoryBaseUrl/api/system/ping").openConnection().asInstanceOf[java.net.HttpURLConnection]
+    val conn =
+      new java.net.URL(s"$artifactoryBaseUrl/api/system/ping").openConnection().asInstanceOf[java.net.HttpURLConnection]
     conn.setConnectTimeout(1000)
     try {
       conn.getResponseCode
