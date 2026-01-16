@@ -116,18 +116,6 @@ object TestRunnerConfig {
     artifactoryBaseUrl
   )
 
-  // Think we have 2 options we could choose between:
-
-  // Option 1. configure globally once
-
-  if (downloadBrowsersFromArtifactory) {
-    sourceBrowserBinariesFromArtifactory
-      .checkArtifactoryIsAvailable()
-      .configureSeleniumManager()
-  }
-
-  // Option 2. configure when used, temporarily
-
   def withBrowserBinariesFromArtifactory[T](block: => T): T =
     if (downloadBrowsersFromArtifactory) {
       sourceBrowserBinariesFromArtifactory
