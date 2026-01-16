@@ -18,7 +18,6 @@ package uk.gov.hmrc.uitestrunner.config
 
 import com.typesafe.config.{Config, ConfigFactory}
 import uk.gov.hmrc.selenium.webdriver.SourceBrowserBinariesFromArtifactory
-import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig.{artifactoryBaseUrl, downloadBrowsersFromArtifactory}
 
 import java.util.logging.Level
 import scala.concurrent.duration.{Duration, DurationInt}
