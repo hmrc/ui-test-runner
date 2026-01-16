@@ -21,11 +21,13 @@ class SourceBrowserBinariesFromArtifactory(sysEnv: Map[String, String], artifact
     "SE_CHROME_MIRROR_URL"       ->
       sysEnv.getOrElse("SE_CHROME_MIRROR_URL", s"$artifactoryBaseUrl/chrome-browser/"),
     "SE_CHROMEDRIVER_MIRROR_URL" ->
-      sysEnv.getOrElse("SE_CHROMEDRIVER_MIRROR_URL", s"$artifactoryBaseUrl/chrome-driver/"),
+      sysEnv.getOrElse("SE_CHROMEDRIVER_MIRROR_URL", s"$artifactoryBaseUrl/chrome-browser/"),
     "SE_FIREFOX_MIRROR_URL"      ->
       sysEnv.getOrElse("SE_FIREFOX_MIRROR_URL", s"$artifactoryBaseUrl/firefox-browser/"),
     "SE_GECKODRIVER_MIRROR_URL"  ->
-      sysEnv.getOrElse("SE_GECKODRIVER_MIRROR_URL", s"$artifactoryBaseUrl/firefox-driver/"),
+      sysEnv.getOrElse("SE_GECKODRIVER_MIRROR_URL", s"$artifactoryBaseUrl/firefox-browser/"),
+
+    // TODO are these edge ones right? doesn't seem to match jenkins
     "SE_MSEDGE_MIRROR_URL"       ->
       sysEnv.getOrElse("SE_MSEDGE_MIRROR_URL", s"$artifactoryBaseUrl/edge-browser/"),
     "SE_MSEDGEDRIVER_MIRROR_URL" ->

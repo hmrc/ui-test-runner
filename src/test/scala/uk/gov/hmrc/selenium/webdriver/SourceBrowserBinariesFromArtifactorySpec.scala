@@ -64,9 +64,9 @@ class SourceBrowserBinariesFromArtifactorySpec extends AnyWordSpec with Matchers
           ).configureSeleniumManager()
 
           sys.props.get("SE_CHROME_MIRROR_URL")       shouldBe Some(s"$artifactoryBaseUrl/chrome-browser/")
-          sys.props.get("SE_CHROMEDRIVER_MIRROR_URL") shouldBe Some(s"$artifactoryBaseUrl/chrome-driver/")
+          sys.props.get("SE_CHROMEDRIVER_MIRROR_URL") shouldBe Some(s"$artifactoryBaseUrl/chrome-browser/")
           sys.props.get("SE_FIREFOX_MIRROR_URL")      shouldBe Some(s"$artifactoryBaseUrl/firefox-browser/")
-          sys.props.get("SE_GECKODRIVER_MIRROR_URL")  shouldBe Some(s"$artifactoryBaseUrl/firefox-driver/")
+          sys.props.get("SE_GECKODRIVER_MIRROR_URL")  shouldBe Some(s"$artifactoryBaseUrl/firefox-browser/")
           sys.props.get("SE_MSEDGE_MIRROR_URL")       shouldBe Some(s"$artifactoryBaseUrl/edge-browser/")
           sys.props.get("SE_MSEDGEDRIVER_MIRROR_URL") shouldBe Some(s"$artifactoryBaseUrl/edge-driver/")
         } finally
@@ -137,7 +137,7 @@ class SourceBrowserBinariesFromArtifactorySpec extends AnyWordSpec with Matchers
           sys.props.get("SE_CHROME_MIRROR_URL")       shouldBe Some("chrome-browser-set-by-sys-env")
           sys.props.get("SE_CHROMEDRIVER_MIRROR_URL") shouldBe Some("chrome-driver-set-by-sys-env")
           sys.props.get("SE_FIREFOX_MIRROR_URL")      shouldBe Some(s"$artifactoryBaseUrl/firefox-browser/")
-          sys.props.get("SE_GECKODRIVER_MIRROR_URL")  shouldBe Some(s"$artifactoryBaseUrl/firefox-driver/")
+          sys.props.get("SE_GECKODRIVER_MIRROR_URL")  shouldBe Some(s"$artifactoryBaseUrl/firefox-browser/")
           sys.props.get("SE_MSEDGE_MIRROR_URL")       shouldBe Some(s"$artifactoryBaseUrl/edge-browser/")
           sys.props.get("SE_MSEDGEDRIVER_MIRROR_URL") shouldBe Some(s"$artifactoryBaseUrl/edge-driver/")
         }
