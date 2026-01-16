@@ -36,12 +36,14 @@ class DriverFactory extends LazyLogging {
   private val chromeBrowserVersion  = TestRunnerConfig.browserChromeVersion
 
   def initialise(): WebDriver =
-    TestRunnerConfig.browserType match {
-      case Some("chrome")  => new ChromeDriver(chromeOptions())
-      case Some("edge")    => new EdgeDriver(edgeOptions())
-      case Some("firefox") => new FirefoxDriver(firefoxOptions())
-      case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
-      case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
+    TestRunnerConfig.withBrowserBinariesFromArtifactory {
+      TestRunnerConfig.browserType match {
+        case Some("chrome") => new ChromeDriver(chromeOptions())
+        case Some("edge") => new EdgeDriver(edgeOptions())
+        case Some("firefox") => new FirefoxDriver(firefoxOptions())
+        case Some(browser) => throw DriverFactoryException(s"Browser '$browser' is not supported.")
+        case None => throw DriverFactoryException("System property 'browser' is required but was not defined.")
+      }
     }
 
   private[webdriver] def chromeOptions(): ChromeOptions = {

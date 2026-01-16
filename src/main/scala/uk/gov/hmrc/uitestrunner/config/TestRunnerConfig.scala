@@ -17,6 +17,8 @@
 package uk.gov.hmrc.uitestrunner.config
 
 import com.typesafe.config.{Config, ConfigFactory}
+import uk.gov.hmrc.selenium.webdriver.SourceBrowserBinariesFromArtifactory
+import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig.{artifactoryBaseUrl, downloadBrowsersFromArtifactory}
 
 import java.util.logging.Level
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -99,4 +101,39 @@ object TestRunnerConfig {
 
   def anyLoggingEnabled: Boolean =
     browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled
+
+  def downloadBrowsersFromArtifactory: Boolean =
+    sys.props.getOrElse("browser.option.downloadFromArtifactory", "true").toBoolean
+
+  def artifactoryBaseUrl: String =
+    sys.props.getOrElse(
+      "ARTIFACTORY_URI",
+      sys.env.getOrElse("ARTIFACTORY_URI", "https://artefacts.tax.service.gov.uk/artifactory")
+    )
+
+  private val sourceBrowserBinariesFromArtifactory = new SourceBrowserBinariesFromArtifactory(
+    sys.env,
+    artifactoryBaseUrl
+  )
+
+  // Think we have 2 options we could choose between:
+
+  // Option 1. configure globally once
+
+  if (downloadBrowsersFromArtifactory) {
+    sourceBrowserBinariesFromArtifactory
+      .checkArtifactoryIsAvailable()
+      .configureSeleniumManager()
+  }
+
+  // Option 2. configure when used, temporarily
+
+  def withBrowserBinariesFromArtifactory[T](block: => T): T = {
+    if (downloadBrowsersFromArtifactory) {
+      sourceBrowserBinariesFromArtifactory
+        .checkArtifactoryIsAvailable() // this is cached, only checked once
+        .configureSeleniumManagerTemporarily(block)
+    } else block
+  }
+
 }
