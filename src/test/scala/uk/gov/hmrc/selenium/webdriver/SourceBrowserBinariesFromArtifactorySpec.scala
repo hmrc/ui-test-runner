@@ -19,12 +19,15 @@ package uk.gov.hmrc.selenium.webdriver
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
 import org.openqa.selenium.edge.{EdgeDriver, EdgeOptions}
 import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.helpers.{unusedPort, withSystemProperties}
+import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 class SourceBrowserBinariesFromArtifactorySpec extends AnyWordSpec with Matchers {
 
@@ -174,6 +177,39 @@ class SourceBrowserBinariesFromArtifactorySpec extends AnyWordSpec with Matchers
             }.getMessage should include("Unable to obtain: chromedriver")
           }
         }
+      }
+
+      "don't make any requests to other sources of browser binaries" in {
+        val wiremockProxy = new WireMockServer(
+          options()
+            .dynamicPort()
+            .enableBrowserProxying(true)
+            .trustAllProxyTargets(true)
+        )
+        try {
+          wiremockProxy.start()
+          withSystemProperties(
+            "SE_PROXY"      -> wiremockProxy.baseUrl(),
+            // without the following it doesn't always seem to make a request to artifactory so
+            // the tests could be flakey - there wouldn't always be an exception intercepted
+            "SE_CACHE_PATH" -> os.temp.dir(deleteOnExit = true).toString
+          ) {
+            new SourceBrowserBinariesFromArtifactory(
+              sysEnv = Map.empty,
+              artifactoryBaseUrl = TestRunnerConfig.artifactoryBaseUrl
+            ).configureSeleniumManagerTemporarily {
+              val options = new ChromeOptions()
+              options.setBrowserVersion("136")
+              val driver  = new ChromeDriver(options)
+              driver.quit()
+            }
+            // the following is an example of how to check all the requests:
+            wiremockProxy.getAllServeEvents.asScala.toList.foreach(request =>
+              println(request.getRequest.getHost + request.getRequest.getUrl)
+            )
+          }
+        } finally
+          wiremockProxy.stop()
       }
     }
 
