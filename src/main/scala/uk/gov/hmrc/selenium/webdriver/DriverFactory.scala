@@ -211,6 +211,12 @@ class DriverFactory extends LazyLogging {
   private def headless(capabilities: MutableCapabilities): MutableCapabilities = {
     val browserName = capabilities.getBrowserName
 
+    if (sys.env.contains("JENKINS_HOME") && !TestRunnerConfig.browserOptionHeadLessEnabled) {
+      logger.warn(
+        "WARNING:- this job may fail as it has been instructed to run in Non-headless mode, please check your sbt command, and set headless mode to true"
+      )
+    }
+
     if (TestRunnerConfig.browserOptionHeadLessEnabled) {
       browserName match {
         case "chrome"        =>
