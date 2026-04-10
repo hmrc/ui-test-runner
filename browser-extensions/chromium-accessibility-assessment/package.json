@@ -1,6 +1,6 @@
 {
   "name": "accessibility-assessment",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Automatic accessibility checks.",
   "engines": {
     "node": "^20",
@@ -54,6 +54,6 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "axe-core": "^4.11.0"
+    "axe-core": "^4.11.2"
   }
 }
