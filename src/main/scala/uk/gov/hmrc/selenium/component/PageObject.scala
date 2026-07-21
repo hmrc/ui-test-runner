@@ -19,14 +19,18 @@ package uk.gov.hmrc.selenium.component
 import org.openqa.selenium.{By, Keys, WebDriver, WebElement}
 import org.openqa.selenium.support.ui.{ExpectedConditions, FluentWait, Select, Wait}
 import uk.gov.hmrc.selenium.webdriver.Driver
+import org.openqa.selenium.{NoSuchElementException, StaleElementReferenceException}
 
 import java.time.Duration
 
 trait PageObject {
 
-  private def fluentWait: Wait[WebDriver] = new FluentWait[WebDriver](Driver.instance)
-    .withTimeout(Duration.ofSeconds(3))
-    .pollingEvery(Duration.ofSeconds(1))
+  private def fluentWait: Wait[WebDriver] =
+    new FluentWait[WebDriver](Driver.instance)
+      .withTimeout(Duration.ofSeconds(10))
+      .pollingEvery(Duration.ofMillis(250))
+      .ignoring(classOf[NoSuchElementException])
+      .ignoring(classOf[StaleElementReferenceException])
 
   protected def click(locator: By): Unit = {
     waitForElementToBePresent(locator)
@@ -103,5 +107,8 @@ trait PageObject {
 
   private def waitForElementToBePresent(locator: By): WebElement =
     fluentWait.until(ExpectedConditions.presenceOfElementLocated(locator))
+
+  private def waitForElementToBeClickable(locator: By): WebElement =
+    fluentWait.until(ExpectedConditions.elementToBeClickable(locator))
 
 }

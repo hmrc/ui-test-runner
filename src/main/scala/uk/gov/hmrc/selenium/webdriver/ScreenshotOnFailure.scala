@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import org.openqa.selenium.firefox.HasFullPageScreenshot
 import org.openqa.selenium.io.FileHandler.{copy, createDir}
 import org.openqa.selenium.{OutputType, TakesScreenshot}
 import org.scalatest.{Documenting, Outcome, TestSuite, TestSuiteMixin}
@@ -39,7 +40,12 @@ trait ScreenshotOnFailure extends TestSuiteMixin with Documenting { this: TestSu
   }
 
   private def captureScreenshot(screenshotName: String, screenshotDirectory: String): Unit = {
-    val tmpFile        = Driver.instance.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.FILE)
+    val tmpFile = Driver.instance match {
+      case firefox: HasFullPageScreenshot =>
+        firefox.getFullPageScreenshotAs(OutputType.FILE)
+      case other =>
+        other.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.FILE)
+    }
     val screenshotFile = new File(screenshotDirectory, screenshotName)
 
     createDir(new File(screenshotDirectory))
