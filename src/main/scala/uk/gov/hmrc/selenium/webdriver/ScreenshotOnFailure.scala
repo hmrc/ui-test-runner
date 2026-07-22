@@ -40,10 +40,10 @@ trait ScreenshotOnFailure extends TestSuiteMixin with Documenting { this: TestSu
   }
 
   private def captureScreenshot(screenshotName: String, screenshotDirectory: String): Unit = {
-    val tmpFile = Driver.instance match {
+    val tmpFile        = Driver.instance match {
       case firefox: HasFullPageScreenshot =>
         firefox.getFullPageScreenshotAs(OutputType.FILE)
-      case other =>
+      case other                          =>
         other.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.FILE)
     }
     val screenshotFile = new File(screenshotDirectory, screenshotName)
