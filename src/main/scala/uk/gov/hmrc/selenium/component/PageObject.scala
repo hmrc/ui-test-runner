@@ -108,7 +108,4 @@ trait PageObject {
   private def waitForElementToBePresent(locator: By): WebElement =
     fluentWait.until(ExpectedConditions.presenceOfElementLocated(locator))
 
-  private def waitForElementToBeClickable(locator: By): WebElement =
-    fluentWait.until(ExpectedConditions.elementToBeClickable(locator))
-
 }
