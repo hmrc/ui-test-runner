@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Updated axe-core to version 4.12.2
+- Updated axe-core to version 4.12.1
 - Updated dependencies for security vulnerabilities
 
 ## [1.6.0] - 2026-04-09
