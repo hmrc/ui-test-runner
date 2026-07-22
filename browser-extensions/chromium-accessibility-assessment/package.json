@@ -3,8 +3,8 @@
   "version": "1.7.0",
   "description": "Automatic accessibility checks.",
   "engines": {
-    "node": "^20",
-    "npm": "^10"
+    "node": "^24",
+    "npm": "^11"
   },
   "targets": {
     "default": {
