@@ -64,8 +64,10 @@ object TestRunnerConfig {
       sys.props.getOrElse("browser.version", "136")
     }
 
-  def browserEdgeVersion: String =
+  def browserEdgeVersion: String = {
+    //TODO consider changing this to stable due to issues it has
     sys.props.getOrElse("browser.version", "137")
+  }
 
   def browserFirefoxVersion: String =
     sys.props.getOrElse("browser.version", "136")

@@ -54,37 +54,36 @@ object BrowserLogger extends LazyLogging {
 
           if (availableLogTypes.isEmpty) {
             logger.warn("Browser logging: No log types available")
-            return
-          }
-
-          val logDir = new File(LOG_DIR)
-          if (!logDir.exists()) {
-            logDir.mkdirs()
-          }
-
-          val logFile = new File(logDir, logFileName)
-
-          val allLogs = scala.collection.mutable.Map[String, List[LogEntry]]()
-
-          if (TestRunnerConfig.browserLoggingEnabled && availableLogTypes.contains(LogType.BROWSER)) {
-            collectLogType(logs, LogType.BROWSER, allLogs)
-          }
-
-          if (TestRunnerConfig.driverLoggingEnabled && availableLogTypes.contains(LogType.DRIVER)) {
-            collectLogType(logs, LogType.DRIVER, allLogs)
-          }
-
-          if (TestRunnerConfig.performanceLoggingEnabled && availableLogTypes.contains(LogType.PERFORMANCE)) {
-            collectLogType(logs, LogType.PERFORMANCE, allLogs)
-          }
-
-          val totalEntries = allLogs.values.map(_.size).sum
-          writeLogsToFile(logFile, allLogs.toMap, remoteDriver.getCapabilities.getBrowserName)
-
-          if (totalEntries > 0) {
-            logger.info(s"Browser logs ($totalEntries entries) saved to: ${logFile.getAbsolutePath}")
           } else {
-            logger.info(s"Browser logs (empty) saved to: ${logFile.getAbsolutePath}")
+            val logDir = new File(LOG_DIR)
+            if (!logDir.exists()) {
+              logDir.mkdirs()
+            }
+
+            val logFile = new File(logDir, logFileName)
+
+            val allLogs = scala.collection.mutable.Map[String, List[LogEntry]]()
+
+            if (TestRunnerConfig.browserLoggingEnabled && availableLogTypes.contains(LogType.BROWSER)) {
+              collectLogType(logs, LogType.BROWSER, allLogs)
+            }
+
+            if (TestRunnerConfig.driverLoggingEnabled && availableLogTypes.contains(LogType.DRIVER)) {
+              collectLogType(logs, LogType.DRIVER, allLogs)
+            }
+
+            if (TestRunnerConfig.performanceLoggingEnabled && availableLogTypes.contains(LogType.PERFORMANCE)) {
+              collectLogType(logs, LogType.PERFORMANCE, allLogs)
+            }
+
+            val totalEntries = allLogs.values.map(_.size).sum
+            writeLogsToFile(logFile, allLogs.toMap, remoteDriver.getCapabilities.getBrowserName)
+
+            if (totalEntries > 0) {
+              logger.info(s"Browser logs ($totalEntries entries) saved to: ${logFile.getAbsolutePath}")
+            } else {
+              logger.info(s"Browser logs (empty) saved to: ${logFile.getAbsolutePath}")
+            }
           }
 
         case _ =>
@@ -103,6 +102,7 @@ object BrowserLogger extends LazyLogging {
       val logList             = entries.getAll.asScala.toList
       allLogs(logType) = logList
     }.recover { case e: Exception =>
+      logger.warn("Failed to collect log entries", e)
     }
 
   private def writeLogsToFile(file: File, logs: Map[String, List[LogEntry]], browserName: String): Unit =
