@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.selenium.webdriver
 
+import com.typesafe.scalalogging.LazyLogging
 import org.openqa.selenium.firefox.HasFullPageScreenshot
 import org.openqa.selenium.io.FileHandler.{copy, createDir}
 import org.openqa.selenium.{OutputType, TakesScreenshot}
@@ -23,17 +24,22 @@ import org.scalatest.{Documenting, Outcome, TestSuite, TestSuiteMixin}
 
 import java.io.File
 
-trait ScreenshotOnFailure extends TestSuiteMixin with Documenting { this: TestSuite =>
+trait ScreenshotOnFailure extends TestSuiteMixin with Documenting with LazyLogging { this: TestSuite =>
 
   abstract override def withFixture(test: NoArgTest): Outcome = {
     val testOutcome         = super.withFixture(test)
-    val testName            = test.name.replaceAll("[^A-Za-z0-9\\s-]", "").trim.replaceAll("\\s+", "-")
+    val testName            = test.name.replaceAll("[^A-Za-z0-9\\s-]", "").trim.replaceAll("\\s+", "-").takeRight(80)
     val screenshotName      = testName + ".png"
     val screenshotDirectory = "./target/test-reports/html-report/images/screenshots/"
 
     if (testOutcome.isExceptional) {
-      captureScreenshot(screenshotName, screenshotDirectory)
-      markup(s"<img src='images/screenshots/$screenshotName' />")
+      try {
+        captureScreenshot(screenshotName, screenshotDirectory)
+        markup(s"<img src='images/screenshots/$screenshotName' />")
+      } catch {
+        case e: Exception =>
+          logger.error(s"Failed to capture screenshot for test: $testName. Error: ${e.getMessage}")
+      }
     }
 
     testOutcome

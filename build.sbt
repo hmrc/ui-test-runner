@@ -7,7 +7,7 @@ lazy val library = (project in file("."))
   .settings(
     name := "ui-test-runner",
     majorVersion := 0,
-    scalaVersion := "2.13.14",
+    scalaVersion := "2.13.18",
     crossScalaVersions := Seq("2.13.18", "3.3.8"),
     isPublicArtefact := true,
     libraryDependencies ++= Dependencies.compile,

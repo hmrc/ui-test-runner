@@ -222,11 +222,11 @@ class DriverFactory extends LazyLogging {
         case "chrome"        =>
           capabilities
             .asInstanceOf[ChromeOptions]
-            .addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox")
+            .addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox","--window-size=1920,1080")
         case "MicrosoftEdge" =>
           capabilities
             .asInstanceOf[EdgeOptions]
-            .addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox")
+            .addArguments("--headless=new", "--no-sandbox", "--disable-setuid-sandbox","--window-size=1920,1080")
         case "firefox"       => capabilities.asInstanceOf[FirefoxOptions].addArguments("-headless")
       }
 
