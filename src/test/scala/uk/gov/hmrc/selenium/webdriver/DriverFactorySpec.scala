@@ -92,7 +92,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --window-size=1920,1080, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome options when security assessment is enabled" in new Setup {
@@ -107,7 +107,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("goog:chromeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --window-size=1920,1080, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --disable-search-engine-choice-screen, --disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints, --disable-features=MediaRouter], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Chrome logging preferences when browser logging is enabled" in new Setup {
@@ -175,7 +175,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --window-size=1920,1080], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when accessibility assessment is disabled" in new Setup {
@@ -189,7 +189,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --window-size=1920,1080], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when security assessment is enabled" in new Setup {
@@ -204,7 +204,7 @@ class DriverFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEac
       options
         .asMap()
         .get("ms:edgeOptions")
-        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox, --window-size=1920,1080], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
+        .toString                                shouldBe s"{args=[--headless=new, --no-sandbox, --disable-setuid-sandbox], extensions=[$accessibilityAssessmentExtension], prefs={download.default_directory=$downloadDirectory}}"
     }
 
     "return Edge options when browser option headless is disabled" in new Setup {

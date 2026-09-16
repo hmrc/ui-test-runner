@@ -27,6 +27,7 @@ trait Browser extends LazyLogging {
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
+    // TODO add if statement if headless or headful
     Driver.instance.manage().window().maximize()
   }
 
