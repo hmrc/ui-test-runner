@@ -68,7 +68,7 @@ object TestRunnerConfig {
     sys.props.getOrElse("browser.version", "stable")
 
   def browserFirefoxVersion: String =
-    sys.props.getOrElse("browser.version", "153")
+    sys.props.getOrElse("browser.version", "152")
 
   def browserLoggingEnabled: Boolean =
     sys.props.getOrElse("browser.logging", "false").toBoolean

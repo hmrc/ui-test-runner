@@ -38,7 +38,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       System.setProperty("browser", "chrome")
       System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
       System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/chrome-browser/")
-      System.setProperty("browser.version", "136")
+      System.setProperty("browser.version", "149")
       ConfigFactory.invalidateCaches()
 
       startBrowser()
