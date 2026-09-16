@@ -28,7 +28,8 @@ trait ScreenshotOnFailure extends TestSuiteMixin with Documenting with LazyLoggi
 
   abstract override def withFixture(test: NoArgTest): Outcome = {
     val testOutcome         = super.withFixture(test)
-    val testName            = test.name.replaceAll("[^A-Za-z0-9\\s-]", "").trim.replaceAll("\\s+", "-").replaceAll("-{2,}", "-").take(80)
+    val testName            =
+      test.name.replaceAll("[^A-Za-z0-9\\s-]", "").trim.replaceAll("\\s+", "-").replaceAll("-{2,}", "-").take(80)
     val screenshotName      = testName + ".png"
     val screenshotDirectory = "./target/test-reports/html-report/images/screenshots/"
 
