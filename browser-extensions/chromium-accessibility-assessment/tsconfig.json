@@ -6,7 +6,8 @@
     "target": "es6",
     "allowJs": true,
     "moduleResolution": "node",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["jest", "chrome"]
   },
   "include": ["src"],
   "exclude": ["node_modules"]

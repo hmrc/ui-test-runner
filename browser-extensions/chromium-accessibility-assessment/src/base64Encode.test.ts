@@ -34,7 +34,7 @@ it("should fail to encode when json string contains characters outside Latin1 ra
         btoa(JSON.stringify(jsonResult))
         fail('Intentionally failing this test as encoding should fail and never reach here');
     } catch(e) {
-        expect(e.message).toBe("Invalid character")
+        expect((e as Error).message).toBe("Invalid character")
     }
 
 })
