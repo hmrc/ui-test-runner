@@ -18,6 +18,7 @@ package uk.gov.hmrc.selenium.webdriver
 
 import com.typesafe.config.ConfigFactory
 import org.openqa.selenium.chrome.ChromeDriver
+import org.openqa.selenium.edge.EdgeDriver
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
@@ -30,6 +31,7 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
     System.clearProperty("browser.version")
     System.clearProperty("driver-mirror-url")
     System.clearProperty("browser-mirror-url")
+    Seq("browser.bidi", "browser.bidi.console", "browser.bidi.jserrors").foreach(System.clearProperty)
     ConfigFactory.invalidateCaches()
   }
 
@@ -51,10 +53,14 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       Driver.instance.asInstanceOf[ChromeDriver].getSessionId shouldBe null
     }
 
-    // commenting out for now - we want this test but it currently fails due to the following known issue:
+    // commenting out for now - we want this test this but it currently fails due to the following known issue:
     // https://github.com/MicrosoftEdge/EdgeWebDriver/issues/159
+    // and not finding the driver
     //    "start and quit Edge browser with default options" in {
     //      System.setProperty("browser", "edge")
+    //      System.setProperty("browser.version", "151")
+    //      System.setProperty("driver-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/edge-browser/")
+    //      System.setProperty("browser-mirror-url", "https://artefacts.tax.service.gov.uk/artifactory/edge-browser/")
     //
     //      startBrowser()
     //
@@ -102,6 +108,37 @@ class BrowserSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with
       }
 
       exception.getMessage shouldBe "System property 'browser' is required but was not defined."
+    }
+  }
+
+  "bidiLoggingRequired" should {
+    "be false when BiDi is off even if log flags are on" in {
+      System.setProperty("browser.bidi.console", "true")
+      bidiLoggingRequired shouldBe false
+    }
+
+    "be false when BiDi is on and both log flags are off" in {
+      System.setProperty("browser.bidi", "true")
+      bidiLoggingRequired shouldBe false
+    }
+
+    "be true when BiDi is on and console logging is on" in {
+      System.setProperty("browser.bidi", "true")
+      System.setProperty("browser.bidi.console", "true")
+      bidiLoggingRequired shouldBe true
+    }
+
+    "be true when BiDi is on and JS error logging is on" in {
+      System.setProperty("browser.bidi", "true")
+      System.setProperty("browser.bidi.jserrors", "true")
+      bidiLoggingRequired shouldBe true
+    }
+  }
+
+  "quitBrowser" should {
+    "do nothing when no driver has been started" in {
+      Driver.instance = null
+      noException should be thrownBy quitBrowser()
     }
   }
 }

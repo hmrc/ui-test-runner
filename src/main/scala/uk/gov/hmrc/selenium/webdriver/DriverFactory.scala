@@ -119,7 +119,7 @@ class DriverFactory extends LazyLogging {
           logPrefs.enable(LogType.PERFORMANCE, TestRunnerConfig.performanceLoggingLevel)
         capabilities.setCapability("goog:loggingPrefs", logPrefs)
         logger.info(
-          s"Browser logging (Chrome): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
+          s"Browser logging: browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
         )
 
       case "MicrosoftEdge" =>
@@ -131,11 +131,14 @@ class DriverFactory extends LazyLogging {
           logPrefs.enable(LogType.PERFORMANCE, TestRunnerConfig.performanceLoggingLevel)
         capabilities.setCapability("ms:loggingPrefs", logPrefs)
         logger.info(
-          s"Browser logging (Edge): browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
+          s"Browser logging: browser=${TestRunnerConfig.browserLoggingEnabled}(${TestRunnerConfig.browserLoggingLevel}), driver=${TestRunnerConfig.driverLoggingEnabled}(${TestRunnerConfig.driverLoggingLevel}), performance=${TestRunnerConfig.performanceLoggingEnabled}(${TestRunnerConfig.performanceLoggingLevel})"
         )
 
       case "firefox" =>
-        logger.warn("Browser logging: Not supported for Firefox")
+        if (TestRunnerConfig.biDiEnabled)
+          logger.info("Browser logging: Enabled")
+        else
+          logger.warn("Browser logging: Not supported for Firefox without BiDi enabled")
 
       case _ =>
         logger.warn(s"Browser logging: Not supported for $browserName")
@@ -210,14 +213,10 @@ class DriverFactory extends LazyLogging {
 
   private def headless(capabilities: MutableCapabilities): MutableCapabilities = {
     val browserName = capabilities.getBrowserName
-
     if (sys.env.contains("JENKINS_HOME") && !TestRunnerConfig.browserOptionHeadLessEnabled) {
-      logger.warn(
-        "WARNING:- this job may fail as it has been instructed to run in Non-headless mode, please check your sbt command, and set headless mode to true"
-      )
+      logger.warn("You are running in Jenkins without headless mode enabled. This may cause test failures or hangs.")
     }
-
-    if (TestRunnerConfig.browserOptionHeadLessEnabled) {
+    if (TestRunnerConfig.browserOptionHeadLessEnabled || TestRunnerConfig.browserENVHeadLessEnabled) {
       browserName match {
         case "chrome"        =>
           capabilities
@@ -232,7 +231,6 @@ class DriverFactory extends LazyLogging {
 
       logger.info("Browser option (headless): Enabled")
     }
-
     capabilities
   }
 

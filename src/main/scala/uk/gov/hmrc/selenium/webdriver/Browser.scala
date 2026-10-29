@@ -19,7 +19,10 @@ package uk.gov.hmrc.selenium.webdriver
 import com.typesafe.scalalogging.LazyLogging
 import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
+import java.io.File
 import java.util.concurrent.TimeUnit
+
+import org.openqa.selenium.Dimension
 
 trait Browser extends LazyLogging {
 
@@ -27,8 +30,15 @@ trait Browser extends LazyLogging {
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
-    // TODO add if statement if headless or headful
-    Driver.instance.manage().window().maximize()
+    configureWindowSize()
+
+    if (bidiLoggingRequired) {
+      Driver.instance match {
+        case remote: org.openqa.selenium.remote.RemoteWebDriver =>
+          BidiLogger.attach(remote)
+        case _                                                  =>
+      }
+    }
   }
 
   /** TODO: Remove or refactor hard coded sleep (250ms) before browser quit function is called
@@ -42,6 +52,17 @@ trait Browser extends LazyLogging {
   protected def quitBrowser(): Unit =
     if (Driver.instance != null) {
       outputBrowserLogs()
+
+      if (bidiLoggingRequired) {
+        Driver.instance match {
+          case remote: org.openqa.selenium.remote.RemoteWebDriver =>
+            val file = new File("target/test-reports/browser-logs", s"bidi-${System.currentTimeMillis()}.log")
+            file.getParentFile.mkdirs()
+            BidiLogger.detachAndFlush(remote, file)
+          case _                                                  =>
+        }
+      }
+
       TimeUnit.MILLISECONDS.sleep(TestRunnerConfig.accessibilityTimeout.toMillis)
       Driver.instance.quit()
     }
@@ -64,4 +85,15 @@ trait Browser extends LazyLogging {
       collectedDrivers += driverSessionId
     }
   }
+
+  private def configureWindowSize(): Unit =
+    if (TestRunnerConfig.browserOptionHeadLessEnabled || TestRunnerConfig.browserENVHeadLessEnabled)
+      Driver.instance.manage().window().setSize(new Dimension(1920, 1080))
+    else
+      Driver.instance.manage().window().maximize()
+
+  protected def bidiLoggingRequired: Boolean =
+    TestRunnerConfig.biDiEnabled &&
+      (TestRunnerConfig.bidiConsoleLoggingEnabled || TestRunnerConfig.bidiJsErrorLoggingEnabled)
+
 }

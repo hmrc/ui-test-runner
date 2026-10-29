@@ -57,6 +57,9 @@ object TestRunnerConfig {
   def browserOptionHeadLessEnabled: Boolean =
     sys.props.getOrElse("browser.option.headless", "true").toBoolean
 
+  def browserENVHeadLessEnabled: Boolean =
+    sys.env.getOrElse("BROWSER_OPTION_HEADLESS", "false").toBoolean
+
   def browserChromeVersion: String =
     if (sys.props.getOrElse("browser.usePreviousVersion", "false").toBoolean) {
       sys.props.getOrElse("browser.version", "128")
@@ -68,7 +71,7 @@ object TestRunnerConfig {
     sys.props.getOrElse("browser.version", "stable")
 
   def browserFirefoxVersion: String =
-    sys.props.getOrElse("browser.version", "152")
+    sys.props.getOrElse("browser.version", "153")
 
   def browserLoggingEnabled: Boolean =
     sys.props.getOrElse("browser.logging", "false").toBoolean
@@ -96,6 +99,12 @@ object TestRunnerConfig {
       .get("performance.logging.level")
       .map(Level.parse)
       .getOrElse(Level.ALL)
+
+  def bidiJsErrorLoggingEnabled: Boolean =
+    sys.props.getOrElse("browser.bidi.jserrors", "false").toBoolean
+
+  def bidiConsoleLoggingEnabled: Boolean =
+    sys.props.getOrElse("browser.bidi.console", "false").toBoolean
 
   def anyLoggingEnabled: Boolean =
     browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled

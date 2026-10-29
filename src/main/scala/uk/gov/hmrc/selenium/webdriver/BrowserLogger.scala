@@ -102,7 +102,6 @@ object BrowserLogger extends LazyLogging {
       val logList             = entries.getAll.asScala.toList
       allLogs(logType) = logList
     }.recover { case e: Exception =>
-      logger.warn("Failed to collect log entries", e)
     }
 
   private def writeLogsToFile(file: File, logs: Map[String, List[LogEntry]], browserName: String): Unit =
