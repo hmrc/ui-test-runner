@@ -17,6 +17,7 @@
 package uk.gov.hmrc.selenium.webdriver
 
 import com.typesafe.scalalogging.LazyLogging
+import org.openqa.selenium.Dimension
 import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
 
 import java.util.concurrent.TimeUnit
@@ -27,8 +28,7 @@ trait Browser extends LazyLogging {
 
   protected def startBrowser(): Unit = {
     Driver.instance = new DriverFactory().initialise()
-    // TODO add if statement if headless or headful
-    Driver.instance.manage().window().maximize()
+    configureWindowSize()
   }
 
   /** TODO: Remove or refactor hard coded sleep (250ms) before browser quit function is called
@@ -64,4 +64,10 @@ trait Browser extends LazyLogging {
       collectedDrivers += driverSessionId
     }
   }
+
+  private def configureWindowSize(): Unit =
+    if (TestRunnerConfig.browserOptionHeadLessEnabled)
+      Driver.instance.manage().window().setSize(new Dimension(1920, 1080))
+    else
+      Driver.instance.manage().window().maximize()
 }
