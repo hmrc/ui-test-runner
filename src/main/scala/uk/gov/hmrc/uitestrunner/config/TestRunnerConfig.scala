@@ -61,14 +61,14 @@ object TestRunnerConfig {
     if (sys.props.getOrElse("browser.usePreviousVersion", "false").toBoolean) {
       sys.props.getOrElse("browser.version", "128")
     } else {
-      sys.props.getOrElse("browser.version", "149")
+      sys.props.getOrElse("browser.version", "155")
     }
 
   def browserEdgeVersion: String =
     sys.props.getOrElse("browser.version", "stable")
 
   def browserFirefoxVersion: String =
-    sys.props.getOrElse("browser.version", "152")
+    sys.props.getOrElse("browser.version", "155")
 
   def browserLoggingEnabled: Boolean =
     sys.props.getOrElse("browser.logging", "false").toBoolean
