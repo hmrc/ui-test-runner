@@ -99,4 +99,13 @@ object TestRunnerConfig {
 
   def anyLoggingEnabled: Boolean =
     browserLoggingEnabled || driverLoggingEnabled || performanceLoggingEnabled
+
+  def seleniumManagerUrls: Seq[String] = Seq(
+    "edgeupdates.microsoft.com",
+    "product-details.mozilla.org",
+    "artefacts.tax.service.gov.uk",
+    "googlechromelabs.github.io"
+  )
+
+  def zapNoProxyHosts: Seq[String] = seleniumManagerUrls.distinct
 }

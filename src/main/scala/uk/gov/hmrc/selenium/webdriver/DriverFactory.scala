@@ -24,6 +24,11 @@ import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.logging.{LogType, LoggingPreferences}
 import uk.gov.hmrc.selenium.webdriver.DriverFactory.BrowserExtensions
 import uk.gov.hmrc.uitestrunner.config.TestRunnerConfig
+import org.openqa.selenium.manager.SeleniumManager
+import org.openqa.selenium.chrome.ChromeDriverService
+import org.openqa.selenium.edge.EdgeDriverService
+import org.openqa.selenium.firefox.GeckoDriverService
+import java.util.{List => JList}
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
@@ -35,11 +40,40 @@ class DriverFactory extends LazyLogging {
   private val firefoxBrowserVersion = TestRunnerConfig.browserFirefoxVersion
   private val chromeBrowserVersion  = TestRunnerConfig.browserChromeVersion
 
+  private def resolveBinaries(browser: String, version: String) =
+    SeleniumManager
+      .getInstance()
+      .getBinaryPaths(JList.of("--browser", browser, "--browser-version", version))
+  // add "--output", "json" if your version requires it
+
   def initialise(): WebDriver =
     TestRunnerConfig.browserType match {
-      case Some("chrome")  => new ChromeDriver(chromeOptions())
-      case Some("edge")    => new EdgeDriver(edgeOptions())
-      case Some("firefox") => new FirefoxDriver(firefoxOptions())
+      case Some("chrome")  =>
+        val options = chromeOptions()                    // still includes the ZAP proxy capability
+        val paths   = resolveBinaries("chrome", chromeBrowserVersion)
+        options.setBinary(paths.getBrowserPath)
+        val service = new ChromeDriverService.Builder()
+          .usingDriverExecutable(new File(paths.getDriverPath))
+          .build()
+        new ChromeDriver(service, options)
+
+      case Some("edge")    =>
+        val options = edgeOptions()
+        val paths   = resolveBinaries("MicrosoftEdge", edgeBrowserVersion)
+        options.setBinary(paths.getBrowserPath)
+        val service = new EdgeDriverService.Builder()
+          .usingDriverExecutable(new File(paths.getDriverPath))
+          .build()
+        new EdgeDriver(service, options)
+
+      case Some("firefox") =>
+        val options = firefoxOptions()
+        val paths   = resolveBinaries("firefox", firefoxBrowserVersion)
+        options.setBinary(paths.getBrowserPath)
+        val service = new GeckoDriverService.Builder()
+          .usingDriverExecutable(new File(paths.getDriverPath))
+          .build()
+        new FirefoxDriver(service, options)
       case Some(browser)   => throw DriverFactoryException(s"Browser '$browser' is not supported.")
       case None            => throw DriverFactoryException("System property 'browser' is required but was not defined.")
     }
